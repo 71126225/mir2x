@@ -177,7 +177,7 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
                     }
                     else{
                         // don't need to handle remote call error, peer side has reported the error
-                        // _RSVD_NAME_uidExecute always returns valid result from remote peer to lua layer if not throw
+                        // _RSVD_NAME_remoteCall always returns valid result from remote peer to lua layer if not throw
                         fflassert(sdRCR.varList.empty(), sdRCR.error, sdRCR.varList);
                         g_server->addLog(LOGTYPE_WARNING, "Error detected in remote call: %s", concatCode(code).c_str());
                         for(const auto &line: sdRCR.error){
@@ -440,7 +440,7 @@ std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, std:
         std::vector<std::string> error;
         if(pfrCheck(pfr, [&error](const std::string &s){ error.push_back(s); })){
             // initial run succeeds and coroutine finished
-            // simple cases like: uidExecute(uid, [[ return getName() ]])
+            // simple cases like: uidRemoteCall(uid, [[ return getName() ]])
             //
             // for this case there is no need to uses coroutine
             // but we can not predict script from NPC is synchronized call or not
@@ -448,7 +448,7 @@ std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, std:
             // for cases like spaceMove() we can use quasi-function from NPC side
             // but it prevents NPC side to execute commands like:
             //
-            //     uidExecute(uid, [[
+            //     uidRemoteCall(uid, [[
             //         spaceMove(12, 22, 12) -- impossible if using quasi-function
             //         return getLevel()
             //     ]])
@@ -465,7 +465,7 @@ std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, std:
             // check commit: 30981cc539a05b41309330eaa04fbf3042c9d826
             //
             // starting/running an coroutine with a light function in Lua costs ~280 ns
-            // alternatively call a light function directly takes ~30 ns, best try is every time let uidExecute() do as much as possible
+            // alternatively call a light function directly takes ~30 ns, best try is every time let uidRemoteCall() do as much as possible
             //
             // light cases, no yield in script
             // directly return the result with save the runner
@@ -534,13 +534,13 @@ void ServerLuaCoroutineRunner::resumeRunner(LuaThreadHandle *runnerPtr, std::opt
 
     // here sol2 can tell if coroutine return nothing vs return nil
     //
-    //    uidExecute(uid, [[        func_return_nil() ]]) -- pfr in c++ is {   }, empty
-    //    uidExecute(uid, [[ return func_return_nil() ]]) -- pfr in c++ is {nil}, size-1-list
+    //    uidRemoteCall(uid, [[        func_return_nil() ]]) -- pfr in c++ is {   }, empty
+    //    uidRemoteCall(uid, [[ return func_return_nil() ]]) -- pfr in c++ is {nil}, size-1-list
     //
     // but if in script we don't check
     //
-    //    local result = uidExecute(uid, [[        func_return_nil() ]]) -- result in lua is nil
-    //    local result = uidExecute(uid, [[ return func_return_nil() ]]) -- result in lua is nil, too
+    //    local result = uidRemoteCall(uid, [[        func_return_nil() ]]) -- result in lua is nil
+    //    local result = uidRemoteCall(uid, [[ return func_return_nil() ]]) -- result in lua is nil, too
     //
     // this difference has been propogated to remote caller side by pfr serialization
     // this difference should be handled by caller side

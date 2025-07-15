@@ -172,9 +172,6 @@ for triggerType = SYS_ON_BEGIN, (SYS_ON_END - 1)
 do
     addTrigger(triggerType, function(...)
         for _, questUID in ipairs(_RSVD_NAME_callFuncCoop('queryQuestTriggerList', triggerType)) do
-            -- don't use uidExecute(questUID, ...) here
-            -- player shall not assume the trigger callback function name in target quest
-
             -- post trigger parameter to quest
             -- won't wait for trigger done, don't assume target quest will reply
             _RSVD_NAME_runQuestTrigger(questUID, triggerType, ...)

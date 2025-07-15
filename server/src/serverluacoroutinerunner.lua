@@ -218,35 +218,6 @@ function uidRemoteCall(uid, ...)
     end
 end
 
-
-function uidExecute(uid, code, ...)
-    -- this is intuitive but inefficient, string.format() takes time and
-    -- 1. this makes internal code are not real lua code, i.e.
-    --
-    --      uidExecute(uid,
-    --      [[
-    --          local arg1 = %s -- this is not real lua code
-    --          local arg2 = %d --
-    --      ]],
-    --
-    --      arg1, arg2)
-    --
-    -- 2. this prevents to use weak table to cache compiled code
-    --    because all arguments get substituted by real values which change in different calls
-    --
-    -- neovim doesn't use this
-    -- instead it uses arguments forwarding by ..., i.e.
-    --
-    --      uidExecute2(uid,
-    --      [[
-    --          local args = ...
-    --      ]],
-    --
-    --      arg1, arg2)
-    --
-    return uidRemoteCall(uid, nil, code:format(...))
-end
-
 local _RSVD_NAME_triggerConfigList = {
     -- trigger parameter config
     -- [1] : trigger type in string

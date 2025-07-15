@@ -95,8 +95,6 @@ class NPChar final: public CharObject
         void sendRemoteCall(uint64_t, uint64_t, const std::string &);
 
     private:
-        // NPChar::postXXX functions are for NPC -> client directly
-        // for messages NPChar -> Player (then Player may react) we use uidExecute()
         void postSell(uint64_t);
         void postXMLLayout(uint64_t, std::string, std::string);
         corof::awaitable<> postAddMonster(uint32_t);
