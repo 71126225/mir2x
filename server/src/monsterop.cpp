@@ -226,10 +226,10 @@ corof::awaitable<> Monster::on_AM_NOTIFYDEAD(const ActorMsgPack &rstMPK)
     return {};
 }
 
-corof::awaitable<> Monster::on_AM_OFFLINE(const ActorMsgPack &rstMPK)
+corof::awaitable<> Monster::on_AM_OFFLINE(const ActorMsgPack &mpk)
 {
-    AMOffline amO;
-    std::memcpy(&amO, rstMPK.data(), sizeof(amO));
+    const auto amO = mpk.conv<AMOffline>();
+    m_inViewCOList.erase(amO.UID);
 
     if(true
             && amO.UID
