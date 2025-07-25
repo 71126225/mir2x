@@ -300,5 +300,12 @@ plyapi = require 'api.ply'
 qstapi = require 'api.qst'
 npcapi = require 'api.npc'
 
+server = {}
+
+server.utils  = require 'api.utils'
+server.player = require 'api.ply'
+server.quest  = require 'api.qst'
+server.npc    = require 'api.npc'
+
 --
 -- )###"
