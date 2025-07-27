@@ -72,7 +72,7 @@ setQuestFSMTable(
                 end,
 
                 npc_criticize_only = function(uid, args)
-                    qstapi.setState(questUID, {uid=uid, state='quest_criticize_only', exitfunc=string.format([=[ runNPCEventHandler(%d, %d, {SYS_EPUID, %s}, SYS_ENTER) ]=], getUID(), uid, asInitString(questName))})
+                    server.quest.setState(questUID, {uid=uid, state='quest_criticize_only', exitfunc=string.format([=[ runNPCEventHandler(%d, %d, {SYS_EPUID, %s}, SYS_ENTER) ]=], getUID(), uid, asInitString(questName))})
                 end,
 
                 npc_pay_on_behalf = function(uid, args)
@@ -85,7 +85,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_pay_on_behalf'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_pay_on_behalf'})
                 end,
             }
         ]])
@@ -202,11 +202,11 @@ uidRemoteCall(getNPCharUID('比奇县_0', '客栈店员_1'), getUID(), getQuestN
     setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
-            if plyapi.getLevel(uid) < minQuestLevel then
+            if server.player.getLevel(uid) < minQuestLevel then
                 return false
             end
 
-            return qstapi.getState(questUID, {uid=uid, fsm=SYS_QSTFSM}) == nil
+            return server.quest.getState(questUID, {uid=uid, fsm=SYS_QSTFSM}) == nil
         end,
 
         [SYS_ENTER] = function(uid, args)
@@ -242,7 +242,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '客栈店员_1'), getUID(), getQuestN
                 </layout>
             ]=], SYS_EXIT)
 
-            qstapi.setState(questUID, {uid=uid, state=SYS_ENTER})
+            server.quest.setState(questUID, {uid=uid, state=SYS_ENTER})
         end,
 
         npc_refuse = function(uid, args)

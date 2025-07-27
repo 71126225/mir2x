@@ -1,18 +1,18 @@
-local qst = {}
+local quest = {}
 
-function qst.getName(questUID)
+function quest.getName(questUID)
     assertType(questUID, "integer")
     assert(isQuest(questUID))
     return uidRemoteCall(questUID, [[ return getQuestName() ]])
 end
 
-function qst.getUID(questName)
+function quest.getUID(questName)
     assertType(questName, "string")
     assert(#questName > 0)
     return _RSVD_NAME_callFuncCoop('queryQuestUID', questName)
 end
 
-function qst.getState(questUID, fargs)
+function quest.getState(questUID, fargs)
     assertType(questUID, "integer")
     assert(isQuest(questUID))
 
@@ -30,7 +30,7 @@ function qst.getState(questUID, fargs)
     ]])
 end
 
-function qst.setState(questUID, fargs)
+function quest.setState(questUID, fargs)
     assertType(questUID, "integer")
     assert(isQuest(questUID))
 
@@ -42,7 +42,7 @@ function qst.setState(questUID, fargs)
     ]])
 end
 
-function qst.setDesp(questUID, fargs)
+function quest.setDesp(questUID, fargs)
     assertType(questUID, "integer")
     assert(isQuest(questUID))
 
@@ -54,4 +54,4 @@ function qst.setDesp(questUID, fargs)
     ]])
 end
 
-return qst
+return quest

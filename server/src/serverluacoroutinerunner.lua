@@ -296,15 +296,11 @@ if SYS_DEBUG then
     v = nil
 end
 
-plyapi = require 'api.ply'
-qstapi = require 'api.qst'
-npcapi = require 'api.npc'
-
 server = {}
 
 server.utils  = require 'api.utils'
-server.player = require 'api.ply'
-server.quest  = require 'api.qst'
+server.player = require 'api.player'
+server.quest  = require 'api.quest'
 server.npc    = require 'api.npc'
 
 --

@@ -80,7 +80,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '物品展示商人'), getUID(), getQuest
                 spaceMove(load('return' .. dstStr)())
             ]=])
 
-            plyapi.addItem(uid, '制魔宝玉')
+            server.player.addItem(uid, '制魔宝玉')
         end,
 
         npc_test_random_move = function(uid, value)

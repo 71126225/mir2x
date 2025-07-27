@@ -553,7 +553,7 @@ setEventHandler(
                 </layout>
             ]], args)
 
-        elseif quest_config[args].prequest and plyapi.getQuestState(uid, quest_config[args].prequest) ~= SYS_DONE then
+        elseif quest_config[args].prequest and server.player.getQuestState(uid, quest_config[args].prequest) ~= SYS_DONE then
             if quest_config[args].prequest_failure then
                 quest_config[args].prequest_failure(uid)
 
@@ -568,7 +568,7 @@ setEventHandler(
                 ]], quest_config[args].prequest)
             end
 
-        elseif quest_config[args].level and plyapi.getLevel(uid) < quest_config[args].level then
+        elseif quest_config[args].level and server.player.getLevel(uid) < quest_config[args].level then
             if quest_config[args].level_failure then
                 quest_config[args].level_failure(uid)
 
@@ -584,7 +584,7 @@ setEventHandler(
             end
 
         else
-            local questState = plyapi.getQuestState(uid, args)
+            local questState = server.player.getQuestState(uid, args)
             if questState == nil then
                 if quest_config[args].on_start then
                     quest_config[args].on_start(uid, args)

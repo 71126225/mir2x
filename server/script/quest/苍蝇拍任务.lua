@@ -55,7 +55,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_start_collection'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_start_collection'})
                 end,
             }
         ]])
@@ -149,8 +149,8 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    plyapi.addItem(uid, getItemID('苍蝇拍'), 1)
-                    qstapi.setState(questUID, {uid=uid, state='quest_get_fly_swatter'})
+                    server.player.addItem(uid, getItemID('苍蝇拍'), 1)
+                    server.quest.setState(questUID, {uid=uid, state='quest_get_fly_swatter'})
                 end,
             }
         ]])
@@ -169,7 +169,7 @@ setQuestFSMTable(
             return
             {
                 [SYS_ENTER] = function(uid, args)
-                    if plyapi.hasItem(uid, getItemID('苍蝇拍'), 0, 1) then
+                    if server.player.hasItem(uid, getItemID('苍蝇拍'), 0, 1) then
                         uidPostXML(uid, questPath,
                         [=[
                             <layout>
@@ -179,10 +179,10 @@ setQuestFSMTable(
                             </layout>
                         ]=], SYS_EXIT)
 
-                        plyapi.removeItem(uid, getItemID('苍蝇拍'), 0, 1)
-                        plyapi.   addItem(uid, getItemID('蝉翼刀'), 1)
+                        server.player.removeItem(uid, getItemID('苍蝇拍'), 0, 1)
+                        server.player.   addItem(uid, getItemID('蝉翼刀'), 1)
 
-                        qstapi.setState(questUID, {uid=uid, state=SYS_DONE})
+                        server.quest.setState(questUID, {uid=uid, state=SYS_DONE})
                     else
                         uidPostXML(uid, questPath,
                         [=[
@@ -206,11 +206,11 @@ uidRemoteCall(getNPCharUID('比奇县_0', '金氏_1'), getUID(), getQuestName(),
     setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
-            if plyapi.getLevel(uid) < minQuestLevel then
+            if server.player.getLevel(uid) < minQuestLevel then
                 return false
             end
 
-            return qstapi.getState(questUID, {uid=uid, fsm=SYS_QSTFSM}) == nil
+            return server.quest.getState(questUID, {uid=uid, fsm=SYS_QSTFSM}) == nil
         end,
 
         [SYS_ENTER] = function(uid, args)
@@ -234,7 +234,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '金氏_1'), getUID(), getQuestName(),
                 </layout>
             ]=], SYS_EXIT)
 
-            qstapi.setState(questUID, {uid=uid, state=SYS_ENTER})
+            server.quest.setState(questUID, {uid=uid, state=SYS_ENTER})
         end,
 
         npc_refuse = function(uid, args)

@@ -53,7 +53,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_ask_book_store'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_ask_book_store'})
                 end,
             }
         ]])
@@ -104,7 +104,7 @@ setQuestFSMTable(
                 end,
 
                 npc_tell_mom = function(uid, args)
-                    qstapi.setState(questUID, {uid=uid, state='quest_tell_mom'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_tell_mom'})
                 end,
             }
         ]])
@@ -161,7 +161,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_buy_kid_stone'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_buy_kid_stone'})
                 end,
             }
         ]])
@@ -249,7 +249,7 @@ setQuestFSMTable(
                 end,
 
                 npc_check_exchange = function(uid, args)
-                    if plyapi.hasItem(uid, '制魔宝玉') then
+                    if server.player.hasItem(uid, '制魔宝玉') then
                         uidPostXML(uid, questPath,
                         [=[
                             <layout>
@@ -289,7 +289,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_got_kid_statue'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_got_kid_statue'})
                 end,
             }
         ]])
@@ -337,7 +337,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state=SYS_DONE})
+                    server.quest.setState(questUID, {uid=uid, state=SYS_DONE})
                 end,
             }
         ]])
@@ -351,7 +351,7 @@ uidRemoteCall(getNPCharUID('比奇县_0_003', '石母_1'), getUID(), getQuestNam
 
     local fnLeaveMap = function(uid)
         local x, y = uidRemoteCall(uid, [=[ return getMapLoc() ]=])
-        plyapi.spaceMove(uid, '比奇县_0', x + 490, y + 360)
+        server.player.spaceMove(uid, '比奇县_0', x + 490, y + 360)
     end
 
     setQuestHandler(questName,
@@ -401,7 +401,7 @@ uidRemoteCall(getNPCharUID('比奇县_0_003', '石母_1'), getUID(), getQuestNam
             ]=], SYS_EXIT)
 
             fnLeaveMap(uid)
-            qstapi.setState(questUID, {uid=uid, state=SYS_ENTER})
+            server.quest.setState(questUID, {uid=uid, state=SYS_ENTER})
         end,
 
         npc_refuse = function(uid, args)
@@ -438,8 +438,8 @@ uidRemoteCall(getNPCharUID('比奇县_0', '母子石像_1'), getUID(), getQuestN
     {
         [SYS_CHECKACTIVE] = false,
         [SYS_ENTER] = function(uid, args)
-            plyapi.spaceMove(uid, '比奇县_0_003', 28, 35)
-            npcapi.runHandler(getNPCharUID('比奇县_0_003', '石母_1'), uid, {SYS_EPQST, questName}, 'npc_extra')
+            server.player.spaceMove(uid, '比奇县_0_003', 28, 35)
+            server.npc.runHandler(getNPCharUID('比奇县_0_003', '石母_1'), uid, {SYS_EPQST, questName}, 'npc_extra')
         end,
     })
 

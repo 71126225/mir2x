@@ -1,6 +1,18 @@
 local utils = {}
 
-function findNPChar(mapName, npcName)
+function utils.peerCount()
+end
+
+function utils.peerIndex()
+end
+
+function utils.findPeerCore()
+end
+
+function utils.findServiceCore()
+end
+
+function utils.findNPChar(mapName, npcName)
     assertType(mapname, 'string')
     assertType(npcname, 'string')
 

@@ -9,7 +9,7 @@ setQuestFSMTable(
             addTrigger(SYS_ON_GAINITEM, function(itemID, seqID)
                 if hasItem(getItemID('铁矿'), 0, 5) then
                     postString('已经收集到5块铁矿了，快回去找怡美吧！')
-                    qstapi.setState(questUID, {uid=playerUID, state='quest_got_iron'})
+                    server.quest.setState(questUID, {uid=playerUID, state='quest_got_iron'})
                     return true
                 end
             end)
@@ -86,7 +86,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state=SYS_DONE})
+                    server.quest.setState(questUID, {uid=uid, state=SYS_DONE})
                 end,
             }
         ]])
@@ -101,11 +101,11 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
     setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
-            return qstapi.getState(questUID, {uid=uid}) == nil
+            return server.quest.getState(questUID, {uid=uid}) == nil
         end,
 
         [SYS_ENTER] = function(uid, args)
-            if plyapi.getLevel(uid) < minQuestLevel then
+            if server.player.getLevel(uid) < minQuestLevel then
                 uidPostXML(uid, questPath,
                 [=[
                     <layout>
@@ -114,10 +114,10 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                         <par></par>
                         <par><event id="%s" close="1">结束</event></par>
                     </layout>
-                ]=], plyapi.getName(uid), minQuestLevel, SYS_EXIT)
+                ]=], server.player.getName(uid), minQuestLevel, SYS_EXIT)
 
             else
-                local dressName = getItemName((plyapi.getWLItem(uid, WLG_DRESS) or {}).itemID)
+                local dressName = getItemName((server.player.getWLItem(uid, WLG_DRESS) or {}).itemID)
                 if not dressName then
                     uidPostXML(uid, questPath,
                     [=[
@@ -128,7 +128,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                             <par><event id="npc_query">嗯？有这种东西？很感兴趣！</event></par>
                             <par><event id="npc_ask_when_not_interested">不感兴趣。</event></par>
                         </layout>
-                    ]=], plyapi.getName(uid))
+                    ]=], server.player.getName(uid))
 
                 elseif string.match(dressName, '布衣.+') then
                     uidPostXML(uid, questPath,
@@ -140,7 +140,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                             <par><event id="npc_query">嗯？有这种东西？很感兴趣！</event></par>
                             <par><event id="npc_ask_when_not_interested">不感兴趣。</event></par>
                         </layout>
-                    ]=], plyapi.getName(uid))
+                    ]=], server.player.getName(uid))
 
                 elseif string.match(dressName, '轻型盔甲.+') then
                     uidPostXML(uid, questPath,
@@ -151,7 +151,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                             <par>实不相瞒，我有一件关于这种盔甲的事情要拜托你，如果你能够帮我我一把话，我就会为你做一套更漂亮的轻型盔甲。</par>
                             <par><event id="npc_introduce_quest">有什么要拜托的事情请您尽管说。</event></par>
                         </layout>
-                    ]=], plyapi.getName(uid))
+                    ]=], server.player.getName(uid))
 
                 else
                     uidPostXML(uid, questPath,
@@ -163,7 +163,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                             <par><event id="npc_query">嗯？有这种东西？很感兴趣！</event></par>
                             <par><event id="npc_ask_when_not_interested">不感兴趣。</event></par>
                         </layout>
-                    ]=], plyapi.getName(uid))
+                    ]=], server.player.getName(uid))
                 end
             end
         end,
@@ -188,7 +188,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                     <par>其实我并非想向您推销轻型盔，而是有一件关于这种盔甲的事情要拜托你...</par>
                     <par><event id="npc_introduce_quest">有什么要拜托的事情请您尽管说。</event></par>
                 </layout>
-            ]=], plyapi.getName(uid))
+            ]=], server.player.getName(uid))
         end,
 
         npc_introduce_quest = function(uid, args)
@@ -228,7 +228,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
         end,
 
         npc_accept_quest = function(uid, args)
-            qstapi.setState(questUID, {uid=uid, state=SYS_ENTER})
+            server.quest.setState(questUID, {uid=uid, state=SYS_ENTER})
         end,
     })
 ]])

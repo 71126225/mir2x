@@ -1,20 +1,20 @@
-local ply = {}
+local player = {}
 
-function ply.getLevel(uid) return uidRemoteCall(uid, [[ return getLevel() ]]) end
-function ply.getGold (uid) return uidRemoteCall(uid, [[ return getGold () ]]) end
-function ply.getGener(uid) return uidRemoteCall(uid, [[ return getGener() ]]) end
-function ply.getName (uid) return uidRemoteCall(uid, [[ return getName () ]]) end
+function player.getLevel(uid) return uidRemoteCall(uid, [[ return getLevel() ]]) end
+function player.getGold (uid) return uidRemoteCall(uid, [[ return getGold () ]]) end
+function player.getGener(uid) return uidRemoteCall(uid, [[ return getGener() ]]) end
+function player.getName (uid) return uidRemoteCall(uid, [[ return getName () ]]) end
 
-function ply.getTeamLeader    (uid) return uidRemoteCall(uid, [[ return getTeamLeader    () ]]) end
-function ply.getTeamMemberList(uid) return uidRemoteCall(uid, [[ return getTeamMemberList() ]]) end
+function player.getTeamLeader    (uid) return uidRemoteCall(uid, [[ return getTeamLeader    () ]]) end
+function player.getTeamMemberList(uid) return uidRemoteCall(uid, [[ return getTeamMemberList() ]]) end
 
-function ply.dbHasFlag   (uid, flag) return uidRemoteCall(uid, flag, [[ return dbHasFlag   (...) ]]) end
-function ply.dbAddFlag   (uid, flag) return uidRemoteCall(uid, flag, [[ return dbAddFlag   (...) ]]) end
-function ply.dbRemoveFlag(uid, flag) return uidRemoteCall(uid, flag, [[ return dbRemoveFlag(...) ]]) end
+function player.dbHasFlag   (uid, flag) return uidRemoteCall(uid, flag, [[ return dbHasFlag   (...) ]]) end
+function player.dbAddFlag   (uid, flag) return uidRemoteCall(uid, flag, [[ return dbAddFlag   (...) ]]) end
+function player.dbRemoveFlag(uid, flag) return uidRemoteCall(uid, flag, [[ return dbRemoveFlag(...) ]]) end
 
-function ply.getWLItem(uid, wlType) return uidRemoteCall(uid, wlType, [[ return getWLItem(...)]]) end
+function player.getWLItem(uid, wlType) return uidRemoteCall(uid, wlType, [[ return getWLItem(...)]]) end
 
-function ply.postString(uid, msg, ...)
+function player.postString(uid, msg, ...)
     local args = table.pack(...)
     uidRemoteCall(uid, msg, args,
     [[
@@ -23,7 +23,7 @@ function ply.postString(uid, msg, ...)
     ]])
 end
 
-function ply.addItem(uid, item, count)
+function player.addItem(uid, item, count)
     assertType(uid, 'integer')
     assert(isPlayer(uid))
 
@@ -46,7 +46,7 @@ function ply.addItem(uid, item, count)
     ]])
 end
 
-function ply.removeItem(uid, item, arg1, arg2)
+function player.removeItem(uid, item, arg1, arg2)
     assertType(uid, 'integer')
     assert(isPlayer(uid))
 
@@ -79,7 +79,7 @@ function ply.removeItem(uid, item, arg1, arg2)
     ]])
 end
 
-function ply.hasItem(uid, item, arg1, arg2)
+function player.hasItem(uid, item, arg1, arg2)
     assertType(uid, 'integer')
     assert(isPlayer(uid))
 
@@ -117,7 +117,7 @@ function ply.hasItem(uid, item, arg1, arg2)
     ]])
 end
 
-function ply.spaceMove(playerUID, ...)
+function player.spaceMove(playerUID, ...)
     assert(isPlayer(playerUID))
     local args = table.pack(...)
 
@@ -128,7 +128,7 @@ function ply.spaceMove(playerUID, ...)
     ]])
 end
 
-function ply.getQuestState(uid, ...)
+function player.getQuestState(uid, ...)
     return uidRemoteCall(uid, table.pack(...),
     [[
         local args = ...
@@ -136,7 +136,7 @@ function ply.getQuestState(uid, ...)
     ]])
 end
 
-function ply.addTrigger(playerUID, triggerType, funcStr)
+function player.addTrigger(playerUID, triggerType, funcStr)
     assertType(playerUID, 'integer')
     assert(isPlayer(playerUID))
 
@@ -150,4 +150,4 @@ function ply.addTrigger(playerUID, triggerType, funcStr)
     ]])
 end
 
-return ply
+return player

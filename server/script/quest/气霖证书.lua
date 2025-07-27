@@ -43,7 +43,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_ask_jewelry'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_ask_jewelry'})
                 end,
             }
         ]])
@@ -82,7 +82,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_ask_wife'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_ask_wife'})
                 end,
             }
         ]])
@@ -155,7 +155,7 @@ setQuestFSMTable(
                         </layout>
                     ]=])
 
-                    plyapi.addItem(uid, getItemID('玉指环'), 1)
+                    server.player.addItem(uid, getItemID('玉指环'), 1)
                 end,
 
                 npc_ask_why_not_go_directly = function(uid, args)
@@ -168,7 +168,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_ask_husband'})
+                    server.quest.setState(questUID, {uid=uid, state='quest_ask_husband'})
                 end,
             }
         ]])
@@ -186,7 +186,7 @@ setQuestFSMTable(
             return
             {
                 [SYS_ENTER] = function(uid, args)
-                    if plyapi.hasItem(uid, getItemID('玉指环'), 0, 1) then
+                    if server.player.hasItem(uid, getItemID('玉指环'), 0, 1) then
                         uidPostXML(uid, questPath,
                         [=[
                             <layout>
@@ -241,8 +241,8 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    plyapi.addItem(uid, getItemID('制魔宝玉'), 1)
-                    qstapi.setState(questUID, {uid=uid, state=SYS_DONE})
+                    server.player.addItem(uid, getItemID('制魔宝玉'), 1)
+                    server.quest.setState(questUID, {uid=uid, state=SYS_DONE})
                 end,
             }
         ]])
@@ -278,15 +278,15 @@ uidRemoteCall(getNPCharUID('比奇县_0', '世玉_1'), getUID(), getQuestName(),
     setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
-            if not plyapi.hasItem(uid, getItemID('气霖证书'), 0, 1) then
+            if not server.player.hasItem(uid, getItemID('气霖证书'), 0, 1) then
                 return false
             end
 
-            return qstapi.getState(questUID, {uid=uid, fsm=SYS_QSTFSM}) == nil
+            return server.quest.getState(questUID, {uid=uid, fsm=SYS_QSTFSM}) == nil
         end,
 
         [SYS_ENTER] = function(uid, args)
-            qstapi.setState(questUID, {uid=uid, state=SYS_ENTER, exitargs=table.pack(getUID(), uid, questName), exitfunc=[=[
+            server.quest.setState(questUID, {uid=uid, state=SYS_ENTER, exitargs=table.pack(getUID(), uid, questName), exitfunc=[=[
                 local npcUID, playerUID, questName = ...
                 runNPCEventHandler(npcUID, playerUID, {SYS_EPUID, questName}, SYS_ENTER)
             ]=]})
