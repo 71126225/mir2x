@@ -362,7 +362,7 @@ void pathf::AStarPathFinder::expand_r()
 
 pathf::AStarPathFinder::PathFindResult pathf::AStarPathFinder::search(int srcX, int srcY, int srcDir, int dstX, int dstY, size_t searchCount)
 {
-    logProfiler();
+    logScopedProfiler("searchAStar");
 
     fflassert(checkGLoc(srcX, srcY, srcDir), srcX, srcY, srcDir);
     fflassert(checkGLoc(dstX, dstY), dstX, dstY);
