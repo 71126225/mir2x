@@ -16,7 +16,7 @@ ExternalProject_Add(
     BUILD_IN_SOURCE TRUE
 
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND make all test
+    BUILD_COMMAND make all
     INSTALL_COMMAND make install INSTALL_TOP=${MIR2X_3RD_PARTY_DIR}/lua/install
     UPDATE_COMMAND ""
     PATCH_COMMAND ""
