@@ -108,50 +108,54 @@ void imgf::blendImageBuffer(
     imgf::blendImageBuffer(dstBuf, dstBufW, dstBufH, srcBuf, srcBufW, srcBufH, dstX, dstY, 0, 0, to_d(srcBufW), to_d(srcBufH));
 }
 
-bool imgf::saveImageBuffer(const void *imgBuf, size_t imgW, size_t imgH, const char *fileName)
+struct saveImageBufferHelperArgs
 {
-    // libpng uses longjmp
-    // requires initialization at beginning
+    // inputs
+    const char *fileName;
+    const void *imgBuf;
 
-    constexpr int pixelSize    = 4;
+    size_t imgW;
+    size_t imgH;
+
+    // temp vars that go cross setjmp
+
     FILE         *fp           = nullptr;
     png_infop     imgInfoPtr   = nullptr;
     png_structp   imgPtr       = nullptr;
     size_t        rowPtrBufLen = 0;
     png_byte    **rowPtrBuf    = nullptr;
+    bool          result       = false;
+};
 
-    // result could be optimized into a register while setjmp only saves the current stack
-    // then when jumping back, result may be lost or invalid
-    volatile bool result = false;
-
+static bool saveImageBuffer_helper(saveImageBufferHelperArgs *args)
+{
     if(!(true
-                && imgBuf
-                && imgW > 0
-                && imgH > 0
-                && fileName
-                && std::strlen(fileName))){
+                && args->imgBuf
+                && args->imgW > 0
+                && args->imgH > 0
+                && str_haschar(args->fileName))){
 
         // use goto statement
         // then all variable declarations should be at the very beginning
         goto imgf_saveRGBABuffer_check_argument_failed;
     }
 
-    if(!(fp = std::fopen(fileName, "wb"))){
+    if(!(args->fp = std::fopen(args->fileName, "wb"))){
         goto imgf_saveRGBABuffer_fopen_failed;
     }
 
-    if(!(imgPtr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr))){
+    if(!(args->imgPtr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr))){
         goto imgf_saveRGBABuffer_png_create_write_struct_failed;
     }
 
-    if(!(imgInfoPtr = png_create_info_struct(imgPtr))){
+    if(!(args->imgInfoPtr = png_create_info_struct(args->imgPtr))){
         goto imgf_saveRGBABuffer_png_create_info_struct_failed;
     }
 
     // after this line
     // any failure in following png_* calls jumps back here, triggered by png_error()
 
-    if(setjmp(png_jmpbuf(imgPtr))){
+    if(setjmp(png_jmpbuf(args->imgPtr))){
         goto imgf_saveRGBABuffer_failed;
     }
 
@@ -162,10 +166,10 @@ bool imgf::saveImageBuffer(const void *imgBuf, size_t imgW, size_t imgH, const c
     //                  [3] : A  : [31:24] 0XFF000000
 
     png_set_IHDR(
-            imgPtr,
-            imgInfoPtr,
-            imgW,
-            imgH,
+            args->imgPtr,
+            args->imgInfoPtr,
+            args->imgW,
+            args->imgH,
             8,
             PNG_COLOR_TYPE_RGBA,
             PNG_INTERLACE_NONE,
@@ -191,35 +195,54 @@ bool imgf::saveImageBuffer(const void *imgBuf, size_t imgW, size_t imgH, const c
     }while(0)
 #endif
 
-    rowPtrBufLen = imgH * sizeof(png_byte *);
-    rowPtrBuf =(png_byte **)(png_malloc(imgPtr, rowPtrBufLen)); // strict-aliasing issue ???
+    args->rowPtrBufLen = args->imgH * sizeof(png_byte *);
+    args->rowPtrBuf =(png_byte **)(png_malloc(args->imgPtr, args->rowPtrBufLen)); // strict-aliasing issue ???
 
-    CHECK_PNG_MALLOC_RESULT(imgPtr, rowPtrBuf);
-    std::memset(rowPtrBuf, 0, rowPtrBufLen);
+    CHECK_PNG_MALLOC_RESULT(args->imgPtr, args->rowPtrBuf);
+    std::memset(args->rowPtrBuf, 0, args->rowPtrBufLen);
 
-    for(size_t y = 0; y < imgH; ++y){
-        rowPtrBuf[y] = (png_byte *)(imgBuf) + sizeof(uint8_t) * pixelSize * imgW * y; // const cast
+    for(size_t y = 0; y < args->imgH; ++y){
+        args->rowPtrBuf[y] = (png_byte *)(args->imgBuf) + sizeof(uint8_t) * 4 * args->imgW * y; // const cast
     }
 
-    png_init_io(imgPtr, fp);
-    png_set_rows(imgPtr, imgInfoPtr, rowPtrBuf);
-    png_write_png(imgPtr, imgInfoPtr, PNG_TRANSFORM_IDENTITY, nullptr);
-    result = true;
+    png_init_io(args->imgPtr, args->fp);
+    png_set_rows(args->imgPtr, args->imgInfoPtr, args->rowPtrBuf);
+    png_write_png(args->imgPtr, args->imgInfoPtr, PNG_TRANSFORM_IDENTITY, nullptr);
+    args->result = true;
 
 imgf_saveRGBABuffer_failed:
-    if(rowPtrBuf){
-        png_free(imgPtr, rowPtrBuf);
+    if(args->rowPtrBuf){
+        png_free(args->imgPtr, args->rowPtrBuf);
     }
 
 imgf_saveRGBABuffer_png_create_info_struct_failed:
-    png_destroy_write_struct(&imgPtr, &imgInfoPtr);
+    png_destroy_write_struct(&args->imgPtr, &args->imgInfoPtr);
 
 imgf_saveRGBABuffer_png_create_write_struct_failed:
-    if(fp){
-        std::fclose(fp);
+    if(args->fp){
+        std::fclose(args->fp);
     }
 
 imgf_saveRGBABuffer_fopen_failed:
 imgf_saveRGBABuffer_check_argument_failed:
-    return result;
+    return args->result;
+}
+
+bool imgf::saveImageBuffer(const void *imgBuf, size_t imgW, size_t imgH, const char *fileName)
+{
+    // libpng uses longjmp
+    // requires initialization at beginning
+
+    // result could be optimized into a register while setjmp only saves the current stack
+    // then when jumping back, result may be lost or invalid
+
+    saveImageBufferHelperArgs args
+    {
+        .fileName = fileName,
+        .imgBuf   = imgBuf,
+        .imgW     = imgW,
+        .imgH     = imgH,
+    };
+
+    return saveImageBuffer_helper(&args);
 }
