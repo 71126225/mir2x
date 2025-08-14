@@ -119,12 +119,11 @@ struct saveImageBufferHelperArgs
 
     // temp vars that go cross setjmp
 
+    bool          rc           = false;
     FILE         *fp           = nullptr;
     png_infop     imgInfoPtr   = nullptr;
     png_structp   imgPtr       = nullptr;
-    size_t        rowPtrBufLen = 0;
     png_byte    **rowPtrBuf    = nullptr;
-    bool          result       = false;
 };
 
 static bool saveImageBuffer_helper(saveImageBufferHelperArgs *args)
@@ -195,11 +194,11 @@ static bool saveImageBuffer_helper(saveImageBufferHelperArgs *args)
     }while(0)
 #endif
 
-    args->rowPtrBufLen = args->imgH * sizeof(png_byte *);
-    args->rowPtrBuf =(png_byte **)(png_malloc(args->imgPtr, args->rowPtrBufLen)); // strict-aliasing issue ???
+    const size_t rowPtrBufLen = args->imgH * sizeof(png_byte *);
+    args->rowPtrBuf =(png_byte **)(png_malloc(args->imgPtr, rowPtrBufLen)); // strict-aliasing issue ???
 
     CHECK_PNG_MALLOC_RESULT(args->imgPtr, args->rowPtrBuf);
-    std::memset(args->rowPtrBuf, 0, args->rowPtrBufLen);
+    std::memset(args->rowPtrBuf, 0, rowPtrBufLen);
 
     for(size_t y = 0; y < args->imgH; ++y){
         args->rowPtrBuf[y] = (png_byte *)(args->imgBuf) + sizeof(uint8_t) * 4 * args->imgW * y; // const cast
@@ -208,7 +207,7 @@ static bool saveImageBuffer_helper(saveImageBufferHelperArgs *args)
     png_init_io(args->imgPtr, args->fp);
     png_set_rows(args->imgPtr, args->imgInfoPtr, args->rowPtrBuf);
     png_write_png(args->imgPtr, args->imgInfoPtr, PNG_TRANSFORM_IDENTITY, nullptr);
-    args->result = true;
+    args->rc = true;
 
 imgf_saveRGBABuffer_failed:
     if(args->rowPtrBuf){
@@ -225,7 +224,7 @@ imgf_saveRGBABuffer_png_create_write_struct_failed:
 
 imgf_saveRGBABuffer_fopen_failed:
 imgf_saveRGBABuffer_check_argument_failed:
-    return args->result;
+    return args->rc;
 }
 
 bool imgf::saveImageBuffer(const void *imgBuf, size_t imgW, size_t imgH, const char *fileName)
