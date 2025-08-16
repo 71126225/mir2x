@@ -257,6 +257,18 @@ local _RSVD_NAME_triggerConfigList = {
         },
     },
 
+    [SYS_ON_ONLINE] = {
+        'SYS_ON_ONLINE',
+        {
+        },
+    },
+
+    [SYS_ON_OFFLINE] = {
+        'SYS_ON_OFFLINE',
+        {
+        },
+    },
+
     [SYS_ON_GAINITEM] = {
         'SYS_ON_GAINITEM',
         {

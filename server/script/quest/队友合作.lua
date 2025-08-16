@@ -13,6 +13,21 @@ setQuestFSMTable(
                 </layout>
             ]=], SYS_EXIT)
         ]])
+        setQuestState{uid=uid, state='quest_setup_offline_trigger'}
+    end,
+
+    quest_setup_offline_trigger = function(uid, value)
+        uidRemoteCall(uid, getUID(), uid,
+        [[
+            local questUID, playerUID = ...
+            addTrigger(SYS_ON_OFFLINE, function()
+                uidRemoteCall(questUID, playerUID,
+                [=[
+                    local playerUID = ...
+                    setQuestState{uid=playerUID, state='quest_abort_by_offline'}
+                ]=])
+            end)
+        ]])
         setQuestState{uid=uid, state='quest_setup_kill_trigger'}
     end,
 
@@ -47,6 +62,9 @@ setQuestFSMTable(
                 postString([=[挑战失败，你超时了。]=])
             ]])
         end
+    end,
+
+    quest_abort_by_offline = function(uid, args)
     end,
 })
 

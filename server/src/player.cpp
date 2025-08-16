@@ -931,7 +931,9 @@ bool Player::goOffline()
 {
     dispatchOffline();
     reportOffline(UID(), mapUID());
+
     dbUpdateMapGLoc();
+    m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_OFFLINE)");
 
     deactivate();
     return true;
