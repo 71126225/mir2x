@@ -484,14 +484,17 @@ void ProcessRun::draw() const
         }
     }
 
+    for(auto p: m_ascendStrList){
+        p->draw(m_viewX, m_viewY);
+    }
+
     // draw underlay at the bottom
     // there is one pixel transparent rectangle
     const auto [winW, winH] = g_sdlDevice->getRendererSize();
     g_sdlDevice->fillRectangle(colorf::RGBA(0, 0, 0, 0), 0, winH - 4, winW, 4);
-    g_sdlDevice->fillRectangle(colorf::RGBA(128, 0, 0, 64), 0, 0, winW / 2, winH / 2);
 
-    for(auto p: m_ascendStrList){
-        p->draw(m_viewX, m_viewY);
+    if(const auto &sdHealth = getMyHero()->getSDHealth(); sdHealth.has_value() && sdHealth.value().dead()){
+        g_sdlDevice->fillRectangle(colorf::RGBA(128, 0, 0, 64), 0, 0, winW, winH);
     }
 
     m_guiManager.draw();
