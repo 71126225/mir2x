@@ -488,6 +488,7 @@ void ProcessRun::draw() const
     // there is one pixel transparent rectangle
     const auto [winW, winH] = g_sdlDevice->getRendererSize();
     g_sdlDevice->fillRectangle(colorf::RGBA(0, 0, 0, 0), 0, winH - 4, winW, 4);
+    g_sdlDevice->fillRectangle(colorf::RGBA(128, 0, 0, 64), 0, 0, winW / 2, winH / 2);
 
     for(auto p: m_ascendStrList){
         p->draw(m_viewX, m_viewY);
