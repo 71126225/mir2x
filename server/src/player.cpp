@@ -745,11 +745,15 @@ bool Player::goDie()
 void Player::onDie()
 {
     m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_DIE)");
-    dispatchAction(ActionDie
+
+    const ActionDie die
     {
         .x = X(),
         .y = Y(),
-    });
+    };
+
+    dispatchAction(die);
+    reportAction(UID(), mapUID(), die);
 }
 
 void Player::onRevive()
