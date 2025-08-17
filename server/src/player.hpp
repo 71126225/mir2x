@@ -202,6 +202,7 @@ class Player final: public BattleObject
         corof::awaitable<> net_CM_QUERYCHATMESSAGE          (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_QUERYSELLITEMLIST         (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_QUERYUIDBUFF              (uint8_t, const uint8_t *, size_t, uint64_t);
+        corof::awaitable<> net_CM_REQUESTADDHP              (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_REQUESTADDEXP             (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_REQUESTEQUIPBELT          (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_REQUESTEQUIPWEAR          (uint8_t, const uint8_t *, size_t, uint64_t);
@@ -294,6 +295,9 @@ class Player final: public BattleObject
     protected:
         bool goDie() override;
         void onDie() override;
+
+    protected:
+        void onRevive();
 
     protected:
         bool goOffline();

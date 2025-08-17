@@ -366,6 +366,7 @@ class ProcessRun: public Process
     public:
         void requestDie();
         void requestKillPets();
+        void requestAddHP(uint64_t);
         void requestAddExp(uint64_t);
         bool requestSpaceMove(uint64_t, int, int);
 

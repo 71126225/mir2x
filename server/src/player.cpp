@@ -647,6 +647,7 @@ corof::awaitable<> Player::operateNet(uint8_t nType, const uint8_t *pData, size_
         _support_cm(CM_QUERYCHATMESSAGE          );
         _support_cm(CM_QUERYSELLITEMLIST         );
         _support_cm(CM_QUERYUIDBUFF              );
+        _support_cm(CM_REQUESTADDHP              );
         _support_cm(CM_REQUESTADDEXP             );
         _support_cm(CM_REQUESTEQUIPBELT          );
         _support_cm(CM_REQUESTEQUIPWEAR          );
@@ -744,6 +745,11 @@ bool Player::goDie()
 void Player::onDie()
 {
     m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_DIE)");
+}
+
+void Player::onRevive()
+{
+    m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_REVIVE)");
 }
 
 bool Player::dcValid(int, bool)

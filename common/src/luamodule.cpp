@@ -180,6 +180,7 @@ LuaModule::LuaModule()
     execString("SYS_ON_ONLINE   = %d", SYS_ON_ONLINE);
     execString("SYS_ON_OFFLINE  = %d", SYS_ON_OFFLINE);
     execString("SYS_ON_DIE      = %d", SYS_ON_DIE);
+    execString("SYS_ON_REVIVE   = %d", SYS_ON_REVIVE);
     execString("SYS_ON_LEVELUP  = %d", SYS_ON_LEVELUP);
     execString("SYS_ON_KILL     = %d", SYS_ON_KILL);
     execString("SYS_ON_TEAMUP   = %d", SYS_ON_TEAMUP);

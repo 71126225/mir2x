@@ -275,6 +275,12 @@ local _RSVD_NAME_triggerConfigList = {
         },
     },
 
+    [SYS_ON_REVIVE] = {
+        'SYS_ON_REVIVE',
+        {
+        },
+    },
+
     [SYS_ON_GAINITEM] = {
         'SYS_ON_GAINITEM',
         {

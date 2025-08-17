@@ -554,7 +554,7 @@ void ProcessRun::processEvent(const SDL_Event &event)
         return;
     }
 
-    if(!getMyHero()->dead(true)){
+    if(getMyHero()->dead().value_or(true)){
         return;
     }
 
@@ -1196,6 +1196,12 @@ void ProcessRun::RegisterUserCommand()
         return 1;
     });
 
+    m_userCommandList.emplace_back("addHP", [this](const std::vector<std::string> &parms) -> int
+    {
+        requestAddHP(to_u64(std::stol(parms.at(1))));
+        return 0;
+    });
+
     m_userCommandList.emplace_back("addExp", [this](const std::vector<std::string> &parms) -> int
     {
         requestAddExp(to_u64(std::stol(parms.at(1))));
@@ -1747,6 +1753,17 @@ void ProcessRun::requestDie()
 void ProcessRun::requestKillPets()
 {
     g_client->send(CM_REQUESTKILLPETS);
+}
+
+void ProcessRun::requestAddHP(uint64_t hp)
+{
+    if(hp){
+        CMRequestAddHP cmRAHP;
+        std::memset(&cmRAHP, 0, sizeof(cmRAHP));
+
+        cmRAHP.addHP = hp;
+        g_client->send({CM_REQUESTADDHP, cmRAHP});
+    }
 }
 
 void ProcessRun::requestAddExp(uint64_t exp)
