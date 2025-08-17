@@ -735,7 +735,7 @@ bool Player::goDie()
         return false;
     }
 
-    m_sdHealth.setDead();
+    setHealth(0);
     onDie();
 
     return true;
@@ -1850,6 +1850,16 @@ void Player::setGold(size_t gold)
 bool Player::updateHealth(int addHP, int addMP, int addMaxHP, int addMaxMP)
 {
     if(BattleObject::updateHealth(addHP, addMP, addMaxHP, addMaxMP)){
+        dbUpdateHealth();
+        postNetMessage(SM_HEALTH, cerealf::serialize(m_sdHealth));
+        return true;
+    }
+    return false;
+}
+
+bool Player::setHealth(std::optional<int> hp, std::optional<int> mp, std::optional<int> maxHP, std::optional<int> maxMP)
+{
+    if(BattleObject::setHealth(hp, mp, maxHP, maxMP)){
         dbUpdateHealth();
         postNetMessage(SM_HEALTH, cerealf::serialize(m_sdHealth));
         return true;

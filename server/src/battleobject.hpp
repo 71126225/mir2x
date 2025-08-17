@@ -258,18 +258,11 @@ class BattleObject: public CharObject
         void dispatchBuffIDList();
 
     protected:
-        virtual bool updateHealth(
-                int = 0,    // hp
-                int = 0,    // mp
-                int = 0,    // maxHP
-                int = 0);   // maxMP
+#define updateHealth_virtualFuncWithDefArgs() updateHealth(int = 0, int = 0, int = 0, int = 0)
+#define    setHealth_virtualFuncWithDefArgs()    setHealth(std::optional<int> = std::nullopt, std::optional<int> = std::nullopt, std::optional<int> = std::nullopt, std::optional<int> = std::nullopt)
 
-
-        virtual bool setHealth(
-                std::optional<int> = std::nullopt,      // hp
-                std::optional<int> = std::nullopt,      // mp
-                std::optional<int> = std::nullopt,      // maxHP
-                std::optional<int> = std::nullopt);     // maxMP
+        virtual bool updateHealth_virtualFuncWithDefArgs();
+        virtual bool    setHealth_virtualFuncWithDefArgs();
 
     protected:
         virtual std::pair<int, SDTaggedValMap &> updateBuffedAbility(

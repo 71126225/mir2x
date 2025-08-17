@@ -645,7 +645,7 @@ bool Monster::goDie()
         return false;
     }
 
-    m_sdHealth.setDead();
+    setHealth(0);
     onDie();
 
     return true;

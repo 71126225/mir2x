@@ -1044,11 +1044,6 @@ struct SDHealth
             || (oldMaxMP != maxMP);
     }
 
-    bool setDead()
-    {
-        return setHealth(0);
-    }
-
     int getMaxHP() const
     {
         return std::max<int>(0, maxHP + buffedMaxHP.sum());
