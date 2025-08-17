@@ -191,9 +191,17 @@ class ClientCreature
         void setBuffIDList(SDBuffIDList);
 
     public:
-        const auto &getSDHealth()
+        auto &getSDHealth(this auto &&self)
         {
-            return m_sdHealth;
+            return self.m_sdHealth;
+        }
+
+        std::optional<bool> dead() const
+        {
+            if(const auto &sdH = getSDHealth(); sdH.has_value()){
+                return sdH.value().dead();
+            }
+            return std::nullopt;
         }
 
     public:

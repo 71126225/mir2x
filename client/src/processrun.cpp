@@ -239,7 +239,7 @@ uint64_t ProcessRun::getFocusUID(int focusType, bool allowMyHero) const
             }
         default:
             {
-                throw fflreach();
+                throw fflvalue(focusType, allowMyHero);
             }
     }
 }
@@ -493,7 +493,7 @@ void ProcessRun::draw() const
     const auto [winW, winH] = g_sdlDevice->getRendererSize();
     g_sdlDevice->fillRectangle(colorf::RGBA(0, 0, 0, 0), 0, winH - 4, winW, 4);
 
-    if(const auto &sdHealth = getMyHero()->getSDHealth(); sdHealth.has_value() && sdHealth.value().dead()){
+    if(getMyHero()->dead().value_or(false)){
         g_sdlDevice->fillRectangle(colorf::RGBA(128, 0, 0, 64), 0, 0, winW, winH);
     }
 
@@ -551,6 +551,10 @@ void ProcessRun::processEvent(const SDL_Event &event)
     m_guiManager.purge();
 
     if(tookEvent){
+        return;
+    }
+
+    if(!getMyHero()->dead(true)){
         return;
     }
 
