@@ -1188,6 +1188,12 @@ void ProcessRun::RegisterUserCommand()
         return 1;
     });
 
+    m_userCommandList.emplace_back("addExp", [this](const std::vector<std::string> &parms) -> int
+    {
+        requestAddExp(to_u64(std::stol(parms.at(1))));
+        return 0;
+    });
+
     m_userCommandList.emplace_back("killPets", [this](const std::vector<std::string> &) -> int
     {
         requestKillPets();
@@ -1195,9 +1201,10 @@ void ProcessRun::RegisterUserCommand()
         return 0;
     });
 
-    m_userCommandList.emplace_back("addExp", [this](const std::vector<std::string> &parms) -> int
+    m_userCommandList.emplace_back("die", [this](const std::vector<std::string> &) -> int
     {
-        requestAddExp(to_u64(std::stol(parms.at(1))));
+        requestDie();
+        addCBLog(CBLOG_SYS, u8"自杀");
         return 0;
     });
 
@@ -1722,6 +1729,11 @@ void ProcessRun::requestLatestChatMessage(const std::vector<uint64_t> &cpids, si
     cmRLCM.includeRecv = recvIncluded;
 
     g_client->send({CM_REQUESTLATESTCHATMESSAGE, cmRLCM});
+}
+
+void ProcessRun::requestDie()
+{
+    g_client->send(CM_REQUESTDIE);
 }
 
 void ProcessRun::requestKillPets()

@@ -364,6 +364,7 @@ class ProcessRun: public Process
         std::tuple<int, int> getRandLoc(uint32_t, size_t = 0);
 
     public:
+        void requestDie();
         void requestKillPets();
         void requestAddExp(uint64_t);
         bool requestSpaceMove(uint64_t, int, int);

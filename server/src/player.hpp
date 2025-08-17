@@ -208,6 +208,7 @@ class Player final: public BattleObject
         corof::awaitable<> net_CM_REQUESTGRABBELT           (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_REQUESTGRABWEAR           (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_REQUESTJOINTEAM           (uint8_t, const uint8_t *, size_t, uint64_t);
+        corof::awaitable<> net_CM_REQUESTDIE                (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_REQUESTKILLPETS           (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_REQUESTLATESTCHATMESSAGE  (uint8_t, const uint8_t *, size_t, uint64_t);
         corof::awaitable<> net_CM_REQUESTLEAVETEAM          (uint8_t, const uint8_t *, size_t, uint64_t);
@@ -243,7 +244,8 @@ class Player final: public BattleObject
         bool struckDamage(uint64_t, const DamageNode &) override;
 
     protected:
-        void RequestKillPets();
+        void requestDie();
+        void requestKillPets();
 
     protected:
         DamageNode getAttackDamage(int, int) const override;

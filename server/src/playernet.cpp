@@ -93,9 +93,15 @@ corof::awaitable<> Player::net_CM_REQUESTADDEXP(uint8_t, const uint8_t *buf, siz
     return {};
 }
 
+corof::awaitable<> Player::net_CM_REQUESTDIE(uint8_t, const uint8_t *, size_t, uint64_t)
+{
+    requestDie();
+    return {};
+}
+
 corof::awaitable<> Player::net_CM_REQUESTKILLPETS(uint8_t, const uint8_t *, size_t, uint64_t)
 {
-    RequestKillPets();
+    requestKillPets();
     return {};
 }
 

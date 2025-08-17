@@ -653,6 +653,7 @@ corof::awaitable<> Player::operateNet(uint8_t nType, const uint8_t *pData, size_
         _support_cm(CM_REQUESTGRABBELT           );
         _support_cm(CM_REQUESTGRABWEAR           );
         _support_cm(CM_REQUESTJOINTEAM           );
+        _support_cm(CM_REQUESTDIE                );
         _support_cm(CM_REQUESTKILLPETS           );
         _support_cm(CM_REQUESTLEAVETEAM          );
         _support_cm(CM_REQUESTRETRIEVESECUREDITEM);
@@ -933,9 +934,15 @@ bool Player::goOffline()
     reportOffline(UID(), mapUID());
 
     dbUpdateMapGLoc();
-    m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_OFFLINE)");
+    m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_OFFLINE)", {}, [this](const sol::protected_function_result &)
+    {
+        deactivate();
+    },
 
-    deactivate();
+    [this]()
+    {
+        deactivate();
+    });
     return true;
 }
 
@@ -1681,7 +1688,12 @@ corof::awaitable<int> Player::checkFriend(uint64_t targetUID)
     }
 }
 
-void Player::RequestKillPets()
+void Player::requestDie()
+{
+    goDie();
+}
+
+void Player::requestKillPets()
 {
     for(auto uid: m_slaveList){
         m_actorPod->post(uid, {AM_MASTERKILL});
