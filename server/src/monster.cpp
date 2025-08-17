@@ -404,7 +404,7 @@ corof::awaitable<> Monster::runAICoro()
     uint64_t targetUID = 0;
     hres_timer targetActiveTimer;
 
-    while(m_sdHealth.hp > 0){
+    while(!m_sdHealth.dead()){
         if(targetUID && targetActiveTimer.diff_sec() > SYS_TARGETSEC){
             targetUID = 0;
         }
@@ -641,13 +641,19 @@ bool Monster::dcValid(int, bool)
 
 bool Monster::goDie()
 {
-    if(m_dead.get()){
-        return true;
+    if(m_sdHealth.dead()){
+        return false;
     }
 
-    m_dead.set(true);
-    dispatchOffenderExp();
+    m_sdHealth.setDead();
+    onDie();
 
+    return true;
+}
+
+void Monster::onDie()
+{
+    dispatchOffenderExp();
     for(auto &item: getMonsterDropItemList(monsterID())){
         m_actorPod->post(mapUID(), {AM_DROPITEM, cerealf::serialize(SDDropItem
         {
@@ -657,127 +663,94 @@ bool Monster::goDie()
         })});
     }
 
-    // dispatch die acton without auto-fade-out
-    // server send the fade-out request in goGhost()
-
-    // auto-fade-out is for zombie handling
-    // when client confirms a zombie, client use auto-fade-out die action
-
     dispatchAction(ActionDie
     {
         .x = X(),
         .y = Y(),
     });
 
-    // let's dispatch ActionDie before mark it dead
-    // theoratically dead actor shouldn't dispatch anything
+    // don't deactivate() immdiately here
+    // in future revive dead monsters maybe be revivied
 
     if(getMR().deadFadeOut){
         addDelay(1000, [this](bool) { goGhost(); });
-        return true;
     }
     else{
-        return goGhost();
+        goGhost();
     }
-}
-
-bool Monster::goGhost()
-{
-    if(!m_dead.get()){
-        return false;
-    }
-
-    AMDeadFadeOut amDFO;
-    std::memset(&amDFO, 0, sizeof(amDFO));
-
-    amDFO.UID    = UID();
-    amDFO.mapUID = mapUID();
-    amDFO.X      = X();
-    amDFO.Y      = Y();
-
-    // send this to remove the map grid coverage
-    // for monster don't need fadeout (like Taodog) we shouldn't send the FADEOUT to client
-
-    if(hasActorPod()){
-        m_actorPod->post(mapUID(), {AM_DEADFADEOUT, amDFO});
-    }
-
-    deactivate();
-    return true;
 }
 
 bool Monster::struckDamage(uint64_t fromUID, const DamageNode &node)
 {
-    if(node){
-        const bool phyDC = (to_u32(node.magicID) == DBCOM_MAGICID(u8"物理攻击"));
-        const auto hitProb = [phyDC, &node, this]() -> double
-        {
-            if(phyDC){
-                return mathf::sigmoid(to_df(node.dcHit - getMR().dcDodge) / 2.5) / 2.0 + 0.5;
-            }
-            else{
-                return mathf::sigmoid(to_df(node.mcHit - getMR().mcDodge) / 2.5) / 2.0 + 0.5;
-            }
-        }();
+    if(!node){
+        return false;
+    }
 
-        if(mathf::rand<double>(0.0, 1.0) > hitProb){
-            return true;
+    const bool phyDC = (to_u32(node.magicID) == DBCOM_MAGICID(u8"物理攻击"));
+    const auto hitProb = [phyDC, &node, this]() -> double
+    {
+        if(phyDC){
+            return mathf::sigmoid(to_df(node.dcHit - getMR().dcDodge) / 2.5) / 2.0 + 0.5;
         }
-
-        const auto damage = [phyDC, &node, this]() -> int
-        {
-            if(phyDC){
-                return std::max<int>(0, node.damage - mathf::rand<int>(getMR().ac[0], getMR().ac[1]));
-            }
-
-            const double elemRatio = std::max<double>(0.0, 1.0 + 0.1 * [&node, this]() -> int
-            {
-                const auto &mr = DBCOM_MAGICRECORD(node.magicID);
-                fflassert(mr);
-
-                switch(magicElemID(mr.elem)){
-                    case MET_FIRE   : return getMR().acElem.fire;
-                    case MET_ICE    : return getMR().acElem.ice;
-                    case MET_LIGHT  : return getMR().acElem.light;
-                    case MET_WIND   : return getMR().acElem.wind;
-                    case MET_HOLY   : return getMR().acElem.holy;
-                    case MET_DARK   : return getMR().acElem.dark;
-                    case MET_PHANTOM: return getMR().acElem.phantom;
-                    default         : return 0;
-                }
-            }());
-            return std::max<int>(0, node.damage - std::lround(mathf::rand<int>(getMR().mac[0], getMR().mac[1]) * elemRatio));
-        }();
-
-        if(damage > 0){
-            m_sdHealth.hp = std::max<int>(0, m_sdHealth.hp - damage);
-            dispatchHealth();
-
-            switch(node.modifierID){
-                case DBCOM_ATTACKMODIFIERID(u8"吸血"):
-                    {
-                        AMHeal amH;
-                        std::memset(&amH, 0, sizeof(amH));
-
-                        amH.mapUID = mapUID();
-                        amH.addHP  = std::min<int>(damage, 20);
-
-                        m_actorPod->post(fromUID, {AM_HEAL, amH});
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
-            }
-
-            if(m_sdHealth.hp <= 0){
-                goDie();
-            }
+        else{
+            return mathf::sigmoid(to_df(node.mcHit - getMR().mcDodge) / 2.5) / 2.0 + 0.5;
         }
+    }();
+
+    if(mathf::rand<double>(0.0, 1.0) > hitProb){
         return true;
     }
-    return false;
+
+    const auto damage = [phyDC, &node, this]() -> int
+    {
+        if(phyDC){
+            return std::max<int>(0, node.damage - mathf::rand<int>(getMR().ac[0], getMR().ac[1]));
+        }
+
+        const double elemRatio = std::max<double>(0.0, 1.0 + 0.1 * [&node, this]() -> int
+        {
+            const auto &mr = DBCOM_MAGICRECORD(node.magicID);
+            fflassert(mr);
+
+            switch(magicElemID(mr.elem)){
+                case MET_FIRE   : return getMR().acElem.fire;
+                case MET_ICE    : return getMR().acElem.ice;
+                case MET_LIGHT  : return getMR().acElem.light;
+                case MET_WIND   : return getMR().acElem.wind;
+                case MET_HOLY   : return getMR().acElem.holy;
+                case MET_DARK   : return getMR().acElem.dark;
+                case MET_PHANTOM: return getMR().acElem.phantom;
+                default         : return 0;
+            }
+        }());
+        return std::max<int>(0, node.damage - std::lround(mathf::rand<int>(getMR().mac[0], getMR().mac[1]) * elemRatio));
+    }();
+
+    if(damage > 0){
+        updateHealth(-damage);
+        switch(node.modifierID){
+            case DBCOM_ATTACKMODIFIERID(u8"吸血"):
+                {
+                    AMHeal amH;
+                    std::memset(&amH, 0, sizeof(amH));
+
+                    amH.mapUID = mapUID();
+                    amH.addHP  = std::min<int>(damage, 20);
+
+                    m_actorPod->post(fromUID, {AM_HEAL, amH});
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
+
+        if(m_sdHealth.dead()){
+            onDie();
+        }
+    }
+    return true;
 }
 
 corof::awaitable<bool> Monster::moveOneStep(int argX, int argY)
@@ -1263,7 +1236,7 @@ corof::awaitable<> Monster::onAMAttack(const ActorMsgPack &mpk)
         co_return;
     }
 
-    if(m_dead.get()){
+    if(m_sdHealth.dead()){
         notifyDead(amA.UID);
         co_return;
     }

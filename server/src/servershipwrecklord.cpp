@@ -21,7 +21,7 @@ corof::awaitable<> ServerShipwreckLord::runAICoro()
     hres_timer lastPushTime;
     constexpr uint64_t pushCoolTime = 5;
 
-    while(m_sdHealth.hp > 0){
+    while(!m_sdHealth.dead()){
         if(targetUID && !(co_await validTarget(targetUID))){
             targetUID = 0;
         }

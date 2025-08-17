@@ -395,16 +395,6 @@ corof::awaitable<> NPChar::onActivate()
     m_luaRunner = std::make_unique<NPChar::LuaThreadRunner>(this);
 }
 
-bool NPChar::goDie()
-{
-    return true;
-}
-
-bool NPChar::goGhost()
-{
-    return true;
-}
-
 void NPChar::postSell(uint64_t uid)
 {
     forwardNetPackage(uid, SM_NPCSELL, cerealf::serialize(SDNPCSell

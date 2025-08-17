@@ -292,8 +292,8 @@ class Player final: public BattleObject
         }
 
     protected:
-        virtual bool goDie();
-        virtual bool goGhost();
+        bool goDie() override;
+        void onDie() override;
 
     protected:
         bool goOffline();

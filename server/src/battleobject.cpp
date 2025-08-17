@@ -32,8 +32,8 @@ BattleObject::LuaThreadRunner::LuaThreadRunner(BattleObject *battleObjectPtr)
         result["hp"] = getBO()->m_sdHealth.hp;
         result["mp"] = getBO()->m_sdHealth.mp;
 
-        result["maxHP"] = getBO()->m_sdHealth.maxHP;
-        result["maxMP"] = getBO()->m_sdHealth.maxMP;
+        result["maxHP"] = getBO()->m_sdHealth.getMaxHP();
+        result["maxMP"] = getBO()->m_sdHealth.getMaxMP();
 
         return sol::as_table(result);
     });
@@ -84,6 +84,10 @@ BattleObject::BattleObject(
     defer([ptimer = std::make_shared<hres_timer>(), this]() mutable -> bool
     {
         if(hasActorPod() && (ptimer->diff_secf() >= 1.0)){
+            if(m_sdHealth.dead()){
+                return true;
+            }
+
             updateHealth(m_sdHealth.getHPRecover(), m_sdHealth.getMPRecover());
             ptimer->reset();
         }
@@ -96,7 +100,7 @@ void BattleObject::beforeActivate()
     CharObject::beforeActivate();
     m_actorPod->registerOp(AM_QUERYDEAD, [this](const ActorMsgPack &mpk) -> corof::awaitable<>
     {
-        m_actorPod->post(mpk.fromAddr(), m_dead.get() ? AM_TRUE : AM_FALSE);
+        m_actorPod->post(mpk.fromAddr(), m_sdHealth.dead() ? AM_TRUE : AM_FALSE);
         return {};
     });
 }
@@ -494,7 +498,7 @@ corof::awaitable<bool> BattleObject::requestMapSwitch(uint64_t argMapUID, int lo
 
 bool BattleObject::canAct() const
 {
-    if(m_dead.get()){
+    if(m_sdHealth.dead()){
         return false;
     }
 
@@ -578,6 +582,22 @@ std::optional<std::tuple<int, int, int>> BattleObject::oneStepReach(int dir, int
         result = std::make_tuple(dstX, dstY, d);
     }
     return result;
+}
+
+void BattleObject::goGhost()
+{
+    fflassert(m_sdHealth.dead());
+
+    AMDeadFadeOut amDFO;
+    std::memset(&amDFO, 0, sizeof(amDFO));
+
+    amDFO.UID    = UID();
+    amDFO.mapUID = mapUID();
+    amDFO.X      = X();
+    amDFO.Y      = Y();
+
+    m_actorPod->post(mapUID(), {AM_DEADFADEOUT, amDFO});
+    deactivate(); // calls dtor
 }
 
 void BattleObject::dispatchHealth()
@@ -1060,6 +1080,15 @@ bool BattleObject::updateHealth(int addHP, int addMP, int addMaxHP, int addMaxMP
     return false;
 }
 
+bool BattleObject::setHealth(std::optional<int> hp, std::optional<int> mp, std::optional<int> maxHP, std::optional<int> maxMP)
+{
+    if(m_sdHealth.setHealth(hp, mp, maxHP, maxMP)){
+        dispatchInViewCONetPackage(SM_HEALTH, cerealf::serialize(m_sdHealth));
+        return true;
+    }
+    return false;
+}
+
 std::pair<int, SDTaggedValMap &> BattleObject::updateBuffedAbility(uint32_t buffActID, int percentage, int value)
 {
     fflassert(std::abs(percentage) >= 0);
@@ -1116,7 +1145,7 @@ void BattleObject::sendBuff(uint64_t uid, uint64_t fromBuffSeq, uint32_t buffID)
 void BattleObject::notifyDead(uint64_t uid)
 {
     fflassert(uid);
-    fflassert(m_dead.get());
+    fflassert(m_sdHealth.dead());
 
     AMNotifyDead amND;
     std::memset(&amND, 0, sizeof(amND));

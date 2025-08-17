@@ -10,7 +10,7 @@ corof::awaitable<> ServerTaoDog::runAICoro()
     uint64_t targetUID = 0;
     std::optional<uint64_t> idleTime;
 
-    while(m_sdHealth.hp > 0){
+    while(!m_sdHealth.dead()){
         if(targetUID && !(co_await validTarget(targetUID))){
             targetUID = 0;
         }
@@ -146,7 +146,7 @@ corof::awaitable<> ServerTaoDog::onAMAttack(const ActorMsgPack &mpk)
         co_return;
     }
 
-    if(m_dead.get()){
+    if(m_sdHealth.dead()){
         notifyDead(amA.UID);
         co_return;
     }

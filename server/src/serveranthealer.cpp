@@ -41,7 +41,7 @@ void ServerAntHealer::sendHeal(uint64_t uid)
 
 corof::awaitable<> ServerAntHealer::runAICoro()
 {
-    while(m_sdHealth.hp > 0){
+    while(!m_sdHealth.dead()){
         if(m_sdHealth.hp < m_sdHealth.maxHP){
             dispatchAction(ActionAttack
             {

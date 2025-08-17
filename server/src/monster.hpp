@@ -193,8 +193,8 @@ class Monster: public BattleObject
         bool canAttack(bool) const override;
 
     protected:
-        virtual bool goDie();
-        virtual bool goGhost();
+        bool goDie() override;
+        void onDie() override;
 
     protected:
         virtual corof::awaitable<bool> needHeal(uint64_t);

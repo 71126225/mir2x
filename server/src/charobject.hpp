@@ -112,10 +112,6 @@ class CharObject: public ServerObject
         corof::awaitable<std::optional<COLocation>> getCOLocation(uint64_t);
 
     protected:
-        virtual bool goDie()   = 0;
-        virtual bool goGhost() = 0;
-
-    protected:
         bool inView(uint64_t, int, int) const;
 
     protected:

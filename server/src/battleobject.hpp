@@ -96,9 +96,6 @@ class BattleObject: public CharObject
     protected:
         std::vector<Offender> m_offenderList;
 
-    protected:
-        TimedState<bool> m_dead;
-
     public:
         BattleObject(
                 uint64_t, // uid
@@ -115,6 +112,13 @@ class BattleObject: public CharObject
 
     protected:
         virtual void reportCO(uint64_t) = 0;
+
+    protected:
+        virtual bool goDie() = 0;
+        virtual void onDie() = 0;
+
+    protected:
+        virtual void goGhost();
 
     protected:
         void dispatchHealth();
@@ -259,6 +263,13 @@ class BattleObject: public CharObject
                 int = 0,    // mp
                 int = 0,    // maxHP
                 int = 0);   // maxMP
+
+
+        virtual bool setHealth(
+                std::optional<int> = std::nullopt,      // hp
+                std::optional<int> = std::nullopt,      // mp
+                std::optional<int> = std::nullopt,      // maxHP
+                std::optional<int> = std::nullopt);     // maxMP
 
     protected:
         virtual std::pair<int, SDTaggedValMap &> updateBuffedAbility(

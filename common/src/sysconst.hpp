@@ -21,6 +21,8 @@ enum SysTriggerType: int
     SYS_ON_ONLINE,
     SYS_ON_OFFLINE,
 
+    SYS_ON_DIE,
+
     SYS_ON_LEVELUP,
     SYS_ON_KILL,
 

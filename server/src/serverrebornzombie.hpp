@@ -75,7 +75,7 @@ class ServerRebornZombie final: public Monster
 
             if(damage){
                 updateHealth(-damage.damage);
-                if(m_sdHealth.hp <= 0){
+                if(m_sdHealth.dead()){
                     goDie();
                 }
                 return true;

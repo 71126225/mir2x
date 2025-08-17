@@ -986,7 +986,16 @@ struct SDHealth
         ar(uid, hp, mp, maxHP, maxMP, hpRecover, mpRecover, buffedMaxHP, buffedMaxMP, buffedHPRecover, buffedMPRecover);
     }
 
-    bool updateHealth(int addHP = 0, int addMP = 0, int addMaxHP = 0, int addMaxMP = 0)
+    bool dead() const
+    {
+        return hp <= 0;
+    }
+
+    bool updateHealth(
+            int    addHP = 0,
+            int    addMP = 0,
+            int addMaxHP = 0,
+            int addMaxMP = 0)
     {
         const auto oldHP    = hp;
         const auto oldMP    = mp;
@@ -1004,6 +1013,40 @@ struct SDHealth
             || (oldMP != mp)
             || (oldMaxHP != maxHP)
             || (oldMaxMP != maxMP);
+    }
+
+    bool setHealth(
+            std::optional<int>    argHP = std::nullopt,
+            std::optional<int>    argMP = std::nullopt,
+            std::optional<int> argMaxHP = std::nullopt,
+            std::optional<int> argMaxMP = std::nullopt)
+    {
+        const auto oldHP    = hp;
+        const auto oldMP    = mp;
+        const auto oldMaxHP = maxHP;
+        const auto oldMaxMP = maxMP;
+
+        if(argMaxHP.has_value()){
+            maxHP = std::max<int>(0, argMaxHP.value());
+        }
+
+        if(argMaxMP.has_value()){
+            maxMP = std::max<int>(0, argMaxMP.value());
+        }
+
+        hp = std::max<int>(0, std::min<int>(argHP.value_or(hp), getMaxHP()));
+        mp = std::max<int>(0, std::min<int>(argMP.value_or(mp), getMaxMP()));
+
+        return false
+            || (oldHP != hp)
+            || (oldMP != mp)
+            || (oldMaxHP != maxHP)
+            || (oldMaxMP != maxMP);
+    }
+
+    bool setDead()
+    {
+        return setHealth(0);
     }
 
     int getMaxHP() const

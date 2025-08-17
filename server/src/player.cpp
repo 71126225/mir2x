@@ -731,35 +731,19 @@ void Player::reportNextStrike()
 
 bool Player::goDie()
 {
-    if(m_dead.get()){
-        return true;
-    }
-    m_dead.set(true);
-
-    addDelay(2 * 1000, [this](bool){ goGhost(); });
-    return true;
-}
-
-bool Player::goGhost()
-{
-    if(!m_dead.get()){
+    if(m_sdHealth.dead()){
         return false;
     }
 
-    AMDeadFadeOut amDFO;
-    std::memset(&amDFO, 0, sizeof(amDFO));
+    m_sdHealth.setDead();
+    onDie();
 
-    amDFO.UID    = UID();
-    amDFO.mapUID = mapUID();
-    amDFO.X      = X();
-    amDFO.Y      = Y();
-
-    if(hasActorPod()){
-        m_actorPod->post(mapUID(), {AM_DEADFADEOUT, amDFO});
-    }
-
-    deactivate();
     return true;
+}
+
+void Player::onDie()
+{
+    m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_DIE)");
 }
 
 bool Player::dcValid(int, bool)
@@ -841,42 +825,43 @@ bool Player::struckDamage(uint64_t, const DamageNode &node)
     // make the player never die
     return true;
 
-    if(node){
-        const auto damage = [&node, this]() -> int
-        {
-            const auto combatNode = getCombatNode(m_sdItemStorage.wear, {}, UID(), level());
-            if(DBCOM_MAGICID(u8"物理攻击") == to_u32(node.magicID)){
-                return std::max<int>(0, node.damage - mathf::rand<int>(combatNode.ac[0], combatNode.ac[1]));
-            }
-
-            const double elemRatio = std::max<double>(0.0, 1.0 + 0.1 * [&node, &combatNode, this]() -> int
-            {
-                const auto &mr = DBCOM_MAGICRECORD(node.magicID);
-                fflassert(mr);
-
-                switch(magicElemID(mr.elem)){
-                    case MET_FIRE   : return combatNode.acElem.fire;
-                    case MET_ICE    : return combatNode.acElem.ice;
-                    case MET_LIGHT  : return combatNode.acElem.light;
-                    case MET_WIND   : return combatNode.acElem.wind;
-                    case MET_HOLY   : return combatNode.acElem.holy;
-                    case MET_DARK   : return combatNode.acElem.dark;
-                    case MET_PHANTOM: return combatNode.acElem.phantom;
-                    default         : return 0;
-                }
-            }());
-            return std::max<int>(0, node.damage - std::lround(mathf::rand<int>(combatNode.mac[0], combatNode.mac[1]) * elemRatio));
-        }();
-
-        if(damage > 0){
-            updateHealth(-damage);
-            if(m_sdHealth.hp <= 0){
-                goDie();
-            }
-        }
-        return true;
+    if(!node){
+        return false;
     }
-    return false;
+
+    const auto damage = [&node, this]() -> int
+    {
+        const auto combatNode = getCombatNode(m_sdItemStorage.wear, {}, UID(), level());
+        if(DBCOM_MAGICID(u8"物理攻击") == to_u32(node.magicID)){
+            return std::max<int>(0, node.damage - mathf::rand<int>(combatNode.ac[0], combatNode.ac[1]));
+        }
+
+        const double elemRatio = std::max<double>(0.0, 1.0 + 0.1 * [&node, &combatNode, this]() -> int
+        {
+            const auto &mr = DBCOM_MAGICRECORD(node.magicID);
+            fflassert(mr);
+
+            switch(magicElemID(mr.elem)){
+                case MET_FIRE   : return combatNode.acElem.fire;
+                case MET_ICE    : return combatNode.acElem.ice;
+                case MET_LIGHT  : return combatNode.acElem.light;
+                case MET_WIND   : return combatNode.acElem.wind;
+                case MET_HOLY   : return combatNode.acElem.holy;
+                case MET_DARK   : return combatNode.acElem.dark;
+                case MET_PHANTOM: return combatNode.acElem.phantom;
+                default         : return 0;
+            }
+        }());
+        return std::max<int>(0, node.damage - std::lround(mathf::rand<int>(combatNode.mac[0], combatNode.mac[1]) * elemRatio));
+    }();
+
+    if(damage > 0){
+        updateHealth(-damage);
+        if(m_sdHealth.dead()){
+            goDie();
+        }
+    }
+    return true;
 }
 
 bool Player::ActionValid(const ActionNode &)

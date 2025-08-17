@@ -113,7 +113,7 @@ corof::awaitable<> Player::on_AM_ACTION(const ActorMsgPack &rstMPK)
 corof::awaitable<> Player::on_AM_NOTIFYNEWCO(const ActorMsgPack &mpk)
 {
     const auto amNNCO = mpk.conv<AMNotifyNewCO>();
-    if(m_dead.get()){
+    if(m_sdHealth.dead()){
         notifyDead(amNNCO.UID);
     }
     else{
@@ -176,7 +176,7 @@ corof::awaitable<> Player::on_AM_ATTACK(const ActorMsgPack &mpk)
         return {};
     }
 
-    if(m_dead.get()){
+    if(m_sdHealth.dead()){
         notifyDead(amA.UID);
         return {};
     }

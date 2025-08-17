@@ -166,7 +166,7 @@ corof::awaitable<> Monster::on_AM_ACTION(const ActorMsgPack &rstMPK)
 corof::awaitable<> Monster::on_AM_NOTIFYNEWCO(const ActorMsgPack &rstMPK)
 {
     const auto amNNCO = rstMPK.conv<AMNotifyNewCO>();
-    if(m_dead.get()){
+    if(m_sdHealth.dead()){
         notifyDead(amNNCO.UID);
     }
     else{

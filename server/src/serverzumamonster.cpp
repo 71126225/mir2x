@@ -5,7 +5,7 @@ corof::awaitable<> ServerZumaMonster::runAICoro()
     uint64_t targetUID = 0;
     std::optional<uint64_t> idleTime;
 
-    while(m_sdHealth.hp > 0){
+    while(!m_sdHealth.dead()){
         if(targetUID && !(co_await validTarget(targetUID))){
             targetUID = 0;
         }

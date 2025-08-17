@@ -73,13 +73,14 @@ class ServerCannibalPlant final: public Monster
                 return true;
             }
 
-            if(damage){
-                updateHealth(-damage.damage);
-                if(m_sdHealth.hp <= 0){
-                    goDie();
-                }
-                return true;
+            if(!damage){
+                return false;
             }
-            return false;
+
+            updateHealth(-damage.damage);
+            if(m_sdHealth.dead()){
+                goDie();
+            }
+            return true;
         }
 };

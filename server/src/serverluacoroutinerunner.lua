@@ -269,6 +269,12 @@ local _RSVD_NAME_triggerConfigList = {
         },
     },
 
+    [SYS_ON_DIE] = {
+        'SYS_ON_DIE',
+        {
+        },
+    },
+
     [SYS_ON_GAINITEM] = {
         'SYS_ON_GAINITEM',
         {

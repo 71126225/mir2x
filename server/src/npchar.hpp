@@ -75,10 +75,6 @@ class NPChar final: public CharObject
     protected:
         corof::awaitable<> onActivate() override;
 
-    public:
-        bool goDie() override;
-        bool goGhost() override;
-
     private:
         corof::awaitable<> on_AM_BUY(const ActorMsgPack &);
         corof::awaitable<> on_AM_ATTACK(const ActorMsgPack &);

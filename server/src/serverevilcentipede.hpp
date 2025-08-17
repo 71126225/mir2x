@@ -59,7 +59,7 @@ class ServerEvilCentipede final: public Monster
             if(m_standMode){
                 if(damage){
                     updateHealth(-damage.damage);
-                    if(m_sdHealth.hp <= 0){
+                    if(m_sdHealth.dead()){
                         goDie();
                     }
                     return true;

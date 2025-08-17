@@ -10,7 +10,7 @@ corof::awaitable<> ServerBugbatMaggot::addBat()
 
 corof::awaitable<> ServerBugbatMaggot::runAICoro()
 {
-    while(m_sdHealth.hp > 0){
+    while(!m_sdHealth.dead()){
         for(auto p = m_batUIDList.begin(); p != m_batUIDList.end();){
             if(m_actorPod->checkUIDValid(*p)){
                 p++;
