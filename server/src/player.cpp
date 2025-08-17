@@ -821,10 +821,6 @@ DamageNode Player::getAttackDamage(int nDC, int) const
 
 bool Player::struckDamage(uint64_t, const DamageNode &node)
 {
-    // hack for debug
-    // make the player never die
-    return true;
-
     if(!node){
         return false;
     }
