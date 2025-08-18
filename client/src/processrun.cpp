@@ -1198,7 +1198,7 @@ void ProcessRun::RegisterUserCommand()
 
     m_userCommandList.emplace_back("addHP", [this](const std::vector<std::string> &parms) -> int
     {
-        if(params.size() >= 2){
+        if(parms.size() >= 2){
             requestAddHP(to_u64(std::stol(parms.at(1))));
         }
         return 0;
