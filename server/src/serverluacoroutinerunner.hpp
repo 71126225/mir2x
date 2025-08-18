@@ -168,7 +168,7 @@ class ServerLuaCoroutineRunner: public ServerLuaModule
             sol::coroutine callback;
 
             bool needNotify = false;
-            std::deque<luaf::luaVar> notifyList;
+            std::deque<luaf::luaVar> notifyList; // sender called table.pack(...) before pushed into this list
 
             LuaThreadHandle(ServerLuaModule &argLuaModule, uint64_t argKey, uint64_t argSeqID, std::function<void(const sol::protected_function_result &)> argOnDone, std::function<void()> argOnClose)
                 : key(argKey)

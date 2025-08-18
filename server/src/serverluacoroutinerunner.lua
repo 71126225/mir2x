@@ -30,45 +30,12 @@ function pause(msec)
     return getTime() - oldTime
 end
 
-function getThreadAddress()
-    return {getUID(), getTLSTable().threadKey, getTLSTable().threadSeqID}
-end
+function postNotify(addr, ...)
+    assertType(addr, 'array')
 
-function runExclusive(exclusiveKey, func)
-    _RSVD_NAME_switchExclusiveFunc(exclusiveKey, getTLSTable().threadKey, getTLSTable().threadSeqID)
-    local _RSVD_NAME_autoRemoveExclusiveFunc = setmetatable(
-    {
-        key = exclusiveKey,
-    },
-    {
-        __close = function(self)
-            _RSVD_NAME_switchExclusiveFunc(self.key, 0, 0)
-        end,
-    })
-    return func()
-end
-
-function sendNotify(arg, ...)
-    assertType(arg, 'table', 'integer')
-
-    local uid = nil
-    local key = nil
-    local seq = nil
-
-    if type(arg) == 'table' then
-        uid = arg[1]
-        key = arg[2]
-        seq = argDefault(arg[3], 0)
-    else
-        local argtbl = table.pack(...)
-        uid = arg
-        key = argtbl[1]
-        if argtbl.n >= 2 then
-            seq = argtbl[2] -- must be there as place holder, even zero
-        else
-            seq = 0         -- notify without argument
-        end
-    end
+    local uid = addr[1]
+    local key = addr[2]
+    local seq = addr[3]
 
     assertType(uid, 'integer')
     assertType(key, 'integer')
@@ -78,10 +45,26 @@ function sendNotify(arg, ...)
     assert(key >  0)
     assert(seq >= 0)
 
-    if type(arg) == 'table' then
-        return _RSVD_NAME_callFuncCoop('sendNotify', uid, key, seq, ...)
-    else
-        return _RSVD_NAME_callFuncCoop('sendNotify', arg, ...)
+    _RSVD_NAME_postNotify(uid, key, seq, table.pack(...))
+end
+
+function sendNotify(addr, ...)
+    assertType(addr, 'array')
+
+    local uid = addr[1]
+    local key = addr[2]
+    local seq = addr[3]
+
+    assertType(uid, 'integer')
+    assertType(key, 'integer')
+    assertType(seq, 'integer')
+
+    assert(uid >  0)
+    assert(key >  0)
+    assert(seq >= 0)
+
+    if _RSVD_NAME_callFuncCoop('sendNotify', uid, key, seq, table.pack(...)) ~= SYS_EXECDONE then
+        fatalPrintf('sendNotify failed')
     end
 end
 
@@ -92,16 +75,13 @@ function pickNotify(count)
         assertType(count, 'integer')
         assert(count >= 0, 'count must be non-negative')
     end
-    return _RSVD_NAME_pickNotify(count, getTLSTable().threadKey, getTLSTable().threadSeqID)
+    return _RSVD_NAME_pickNotify(count)
 end
 
 function waitNotify(timeout)
     assertType(timeout, 'integer', 'nil')
     timeout = argDefault(timeout, 0)
     assert(timeout >= 0, 'timeout must be non-negative')
-
-    local threadKey   = getTLSTable().threadKey
-    local threadSeqID = getTLSTable().threadSeqID
 
     local result = _RSVD_NAME_waitNotify(timeout, threadKey, threadSeqID)
     if result then
@@ -149,13 +129,13 @@ function _RSVD_NAME_callFuncCoop(funcName, ...)
         -- more importantly, don't do runner-resume in the onDone callback
         -- which causes crash, because if we resume in onDone, then when the callback gets triggeerred, stack is:
         --
-        --   --C-->onDone-->resumeCORunner(getTLSTable().threadKey)-->code in this runner after _RSVD_NAME_requestSpaceMove/coroutine.yield()
-        --     ^     ^            ^                                   ^
-        --     |     |            |                                   |
-        --     |     |            |                                   +------ lua
-        --     |     |            +------------------------------------------ C
-        --     |     +------------------------------------------------------- lua
-        --     +------------------------------------------------------------- C
+        --   --C-->onDone-->resumeCORunner(keyPair)-->code in this runner after _RSVD_NAME_requestSpaceMove/coroutine.yield()
+        --     ^     ^            ^                   ^
+        --     |     |            |                   |
+        --     |     |            |                   +------ lua
+        --     |     |            +-------------------------- C
+        --     |     +--------------------------------------- lua
+        --     +--------------------------------------------- C
         --
         -- see here C->lua->C->lua with yield/resume
         -- this crashes

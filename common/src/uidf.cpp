@@ -220,7 +220,7 @@ uint64_t uidf::getReceiverSeq(uint64_t uid) { return uid & ((UINT64_C(1) << uidT
 uint64_t uidf::getPeerCoreSeq(uint64_t uid) { return uid & ((UINT64_C(1) << uidTypeBitOff) - 1); }
 uint32_t uidf::getQuestID    (uint64_t uid) { return uid & ((UINT64_C(1) << uidTypeBitOff) - 1); }
 
-bool uidf::isValid(uint64_t uid)
+bool uidf::validUID(uint64_t uid)
 {
     if(!uid){
         return false;

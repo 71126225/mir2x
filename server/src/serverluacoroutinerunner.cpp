@@ -60,14 +60,7 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         auto runnerPtr = thisptr->hasKey(sdSN.key, sdSN.seqID);
 
         if(runnerPtr){
-            // notify is from variadic_args, which may contain tailing nil
-            // create a table that micmics format returned by table.pack() to preserve tailing nil
-
-            auto tblVar = luaf::buildLuaVar(std::move(sdSN.varList));
-            auto tblPtr = std::get_if<luaf::luaTable>(&tblVar);
-
-            tblPtr->emplace(luaf::luaVarWrapper("n"), lua_Integer(tblPtr->size()));
-            runnerPtr->notifyList.push_back(std::move(tblVar));
+            runnerPtr->notifyList.push_back(std::move(sdSN.varList));
         }
 
         if(mpk.seqID()){
@@ -113,6 +106,16 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
     bindFunction("getThreadSeqID", [this]() -> uint64_t
     {
         return m_currRunner->seqID;
+    });
+
+    bindFunction("getKeyPair", [this]() -> std::pair<uint64_t, uint64_t>
+    {
+        return m_currRunner->keyPair();
+    });
+
+    bindFunction("getThreadAddress", [this]() -> std::array<uint64_t, 3>
+    {
+        return {m_actorPod->UID(), m_currRunner->key, m_currRunner->seqID};
     });
 
     bindFunction("runThread", [this](uint64_t key, sol::function func)
@@ -201,79 +204,54 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         }
     });
 
-    bindFunction("postNotify", [this](uint64_t uid, uint64_t dstThreadKey, uint64_t dstThreadSeqID, sol::variadic_args args)
+    bindFunction("_RSVD_NAME_postNotify", [this](uint64_t dstUID, uint64_t dstThreadKey, uint64_t dstThreadSeqID, sol::object args) -> bool
     {
-        std::vector<luaf::luaVar> argList;
-        argList.reserve(args.size());
+        fflassert(uidf::validUID(dstUID));
+        fflassert(dstThreadKey > 0);
 
-        for(const auto &arg: args){
-            argList.emplace_back(luaf::buildLuaVar(sol::object(arg)));
-        }
-
-        m_actorPod->post(uid, {AM_SENDNOTIFY, cerealf::serialize(SDSendNotify
+        return m_actorPod->post(dstUID, {AM_SENDNOTIFY, cerealf::serialize(SDSendNotify
         {
             .key = dstThreadKey,
             .seqID = dstThreadSeqID,
-            .varList = std::move(argList),
+            .varList = luaf::buildLuaVar(args),
             .waitConsume = false,
         })});
     });
 
-    // bindFunction(std::string("_RSVD_NAME_sendNotify") + SYS_COOP, [this](uint64_t questUID, uint64_t dstThreadKey, uint64_t dstThreadSeqID, sol::variadic_args args)
-    // {
-    //     fflassert(uidf::isQuest(questUID), uidf::getUIDString(questUID));
-    //     fflassert(dstThreadKey > 0);
-    //     fflassert(args.size() >= 1, args.size());
-    //     fflassert(args.begin()[args.size() - 1].is<sol::function>());
-    //
-    //     const auto threadKey = m_currRunner->key;
-    //     const auto threadSeqID = m_currRunner->seqID;
-    //     const auto onDone = args.begin()[args.size() - 1].as<sol::function>();
-    //
-    //     fflassert(onDone);
-    //
-    //     auto closed = std::make_shared<bool>(false);
-    //     m_currRunner->onClose.push([closed]()
-    //     {
-    //         *closed = true;
-    //     });
-    //
-    //     const LuaCoopCallDoneFlag callDoneFlag;
-    //     m_actorPod->post(questUID, {AM_SENDNOTIFY, cerealf::serialize(SDSendNotify
-    //     {
-    //         .key = dstThreadKey,
-    //         .seqID = dstThreadSeqID,
-    //         .varList = luaf::vargBuildLuaVarList(args, 0, args.size() - 1),
-    //         .waitConsume = false,
-    //     })},
-    //
-    //     [closed, callDoneFlag, onDone, threadKey, threadSeqID, this](const ActorMsgPack &mpk)
-    //     {
-    //         if(*closed){
-    //             return;
-    //         }
-    //         else if(const auto runnerPtr = hasKey(threadKey, threadSeqID)){
-    //             runnerPtr->onClose.pop();
-    //         }
-    //
-    //         switch(mpk.type()){
-    //             case AM_OK:
-    //                 {
-    //                     onDone(SYS_EXECDONE);
-    //                     break;
-    //                 }
-    //             default:
-    //                 {
-    //                     onDone();
-    //                     break;
-    //                 }
-    //         }
-    //
-    //         if(callDoneFlag){
-    //             resume(threadKey, threadSeqID);
-    //         }
-    //     });
-    // });
+    bindCoop("_RSVD_NAME_sendNotify", [thisptr = this](this auto, LuaCoopResumer onDone, uint64_t dstUID, uint64_t dstThreadKey, uint64_t dstThreadSeqID, sol::object args) -> corof::awaitable<>
+    {
+        fflassert(uidf::validUID(dstUID));
+        fflassert(dstThreadKey > 0);
+
+        bool closed = false;
+        onDone.pushOnClose([&closed](){ closed = true; });
+
+        const auto mpk = co_await thisptr->m_actorPod->send(dstUID, {AM_SENDNOTIFY, cerealf::serialize(SDSendNotify
+        {
+            .key = dstThreadKey,
+            .seqID = dstThreadSeqID,
+            .varList = luaf::buildLuaVar(args),
+            .waitConsume = false,
+        })});
+
+        if(closed){
+            co_return;
+        }
+
+        onDone.popOnClose();
+        switch(mpk.type()){
+            case AM_OK:
+                {
+                    onDone(SYS_EXECDONE);
+                    break;
+                }
+            default:
+                {
+                    onDone();
+                    break;
+                }
+        }
+    });
 
     bindFunction("_RSVD_NAME_pickNotify", [this](uint64_t maxCount, sol::this_state s)
     {

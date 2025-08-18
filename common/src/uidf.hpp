@@ -89,7 +89,7 @@ namespace uidf
 
 namespace uidf
 {
-    bool isValid(uint64_t);
+    bool validUID(uint64_t);
 
     bool isGM(uint64_t);
     bool isPlayer(uint64_t);

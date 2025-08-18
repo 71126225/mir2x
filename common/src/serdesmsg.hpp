@@ -1102,7 +1102,7 @@ struct SDSendNotify
 {
     uint64_t key = 0;
     uint64_t seqID = 0;
-    std::vector<luaf::luaVar> varList {};
+    luaf::luaVar varList {}; // table by table.pack(...)
 
     bool waitConsume = false; // if send response after notification has been consumed
 

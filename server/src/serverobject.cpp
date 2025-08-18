@@ -140,7 +140,7 @@ ServerObject::LuaThreadRunner::LuaThreadRunner(ServerObject *serverObject)
 ServerObject::ServerObject(uint64_t uid)
     : m_UID([uid]() -> uint64_t
       {
-          fflassert(uidf::isValid(uid));
+          fflassert(uidf::validUID(uid));
           return uid;
       }())
 {
