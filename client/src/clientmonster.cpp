@@ -231,8 +231,8 @@ bool ClientMonster::update(double ms)
                     default:
                         {
                             int nextFadeOut = 0;
-                            nextFadeOut = (std::max<int>)(1, m_currMotion->extParam.die.fadeOut + 10);
-                            nextFadeOut = (std::min<int>)(nextFadeOut, 255);
+                            nextFadeOut = std::max<int>(1, m_currMotion->extParam.die.fadeOut + 10);
+                            nextFadeOut = std::min<int>(nextFadeOut, 255);
 
                             m_currMotion->extParam.die.fadeOut = nextFadeOut;
                             break;

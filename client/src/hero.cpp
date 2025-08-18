@@ -416,6 +416,13 @@ bool Hero::update(double ms)
                 // we don't want to reset the frame here
                 return moveNextMotion();
             }
+        case MOTION_DIE:
+            {
+                if(stayIdle()){
+                    return updateMotion(false);
+                }
+                return moveNextMotion();
+            }
         default:
             {
                 return updateMotion(true);

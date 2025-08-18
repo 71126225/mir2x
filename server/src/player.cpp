@@ -745,7 +745,6 @@ bool Player::goDie()
 void Player::onDie()
 {
     m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_DIE)");
-
     const ActionDie die
     {
         .x = X(),
@@ -759,6 +758,10 @@ void Player::onDie()
 void Player::onRevive()
 {
     m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_REVIVE)");
+    const auto stand = makeActionStand();
+
+    dispatchAction(stand);
+    reportAction(UID(), mapUID(), stand);
 }
 
 bool Player::dcValid(int, bool)
