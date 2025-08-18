@@ -13,10 +13,25 @@ setQuestFSMTable(
                 </layout>
             ]=], SYS_EXIT)
         ]])
-        setQuestState{uid=uid, state='quest_setup_offline_trigger'}
+        setQuestState{uid=uid, state='quest_setup_player_die_trigger'}
     end,
 
-    quest_setup_offline_trigger = function(uid, value)
+    quest_setup_player_die_trigger = function(uid, value)
+        uidRemoteCall(uid, getUID(), uid,
+        [[
+            local questUID, playerUID = ...
+            addTrigger(SYS_ON_DIE, function()
+                uidRemoteCall(questUID, playerUID,
+                [=[
+                    local playerUID = ...
+                    setQuestState{uid=playerUID, state='quest_abort_by_die'}
+                ]=])
+            end)
+        ]])
+        setQuestState{uid=uid, state='quest_setup_player_offline_trigger'}
+    end,
+
+    quest_setup_player_offline_trigger = function(uid, value)
         uidRemoteCall(uid, getUID(), uid,
         [[
             local questUID, playerUID = ...
@@ -28,7 +43,7 @@ setQuestFSMTable(
                 ]=])
             end)
         ]])
-        setQuestState{uid=uid, state='quest_setup_kill_trigger'}
+        setQuestState{uid=uid, state='quest_setup_player_die_trigger'}
     end,
 
     quest_setup_kill_trigger = function(uid, value)
@@ -62,6 +77,14 @@ setQuestFSMTable(
                 postString([=[挑战失败，你超时了。]=])
             ]])
         end
+    end,
+
+    quest_abort_by_die = function(uid, args)
+        uidRemoteCall(uid, getQuestName(),
+        [[
+            local questName = ...
+            postString([=[你死了，任务『%s』终止。]=], questName)
+        ]])
     end,
 
     quest_abort_by_offline = function(uid, args)
