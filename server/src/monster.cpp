@@ -997,6 +997,10 @@ corof::awaitable<uint64_t> Monster::searchNearestTarget()
     seen.reserve(m_inViewCOList.size() + 8);
 
     while(const auto targetUID = fnSearchNearestUID(seen)){
+        if(co_await queryDead(targetUID)){
+            continue;
+        }
+
         switch(co_await checkFriend(targetUID)){
             case FT_ENEMY:
                 {

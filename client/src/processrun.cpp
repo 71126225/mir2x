@@ -1198,13 +1198,17 @@ void ProcessRun::RegisterUserCommand()
 
     m_userCommandList.emplace_back("addHP", [this](const std::vector<std::string> &parms) -> int
     {
-        requestAddHP(to_u64(std::stol(parms.at(1))));
+        if(params.size() >= 2){
+            requestAddHP(to_u64(std::stol(parms.at(1))));
+        }
         return 0;
     });
 
     m_userCommandList.emplace_back("addExp", [this](const std::vector<std::string> &parms) -> int
     {
-        requestAddExp(to_u64(std::stol(parms.at(1))));
+        if(params.size() >= 2){
+            requestAddExp(to_u64(std::stol(parms.at(1))));
+        }
         return 0;
     });
 
@@ -1219,6 +1223,15 @@ void ProcessRun::RegisterUserCommand()
     {
         requestDie();
         addCBLog(CBLOG_SYS, u8"自杀");
+        return 0;
+    });
+
+    m_userCommandList.emplace_back("revive", [this](const std::vector<std::string> &) -> int
+    {
+        if(getMyHero()->dead().value_or(true)){
+            requestAddHP(1);
+            addCBLog(CBLOG_SYS, u8"复活");
+        }
         return 0;
     });
 

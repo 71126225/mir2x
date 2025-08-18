@@ -172,7 +172,7 @@ corof::awaitable<> Player::on_AM_QUERYLOCATION(const ActorMsgPack &rstMPK)
 corof::awaitable<> Player::on_AM_ATTACK(const ActorMsgPack &mpk)
 {
     const auto amA = mpk.conv<AMAttack>();
-    if(amA.UID != UID()){
+    if(amA.UID == UID()){
         return {};
     }
 
@@ -204,22 +204,18 @@ corof::awaitable<> Player::on_AM_ATTACK(const ActorMsgPack &mpk)
         m_actorPod->post(slaveUID, AM_MASTERHITTED);
     }
 
-    dispatchAction(ActionHitted
+    const ActionHitted hitted
     {
         .direction = Direction(),
         .x = X(),
         .y = Y(),
         .fromUID = amA.UID,
-    });
+    };
+
+    dispatchAction(hitted);
+    reportAction(UID(), mapUID(), hitted);
 
     struckDamage(amA.UID, amA.damage);
-    reportAction(UID(), mapUID(), ActionHitted
-    {
-        .direction = Direction(),
-        .x = X(),
-        .y = Y(),
-        .fromUID = amA.UID,
-    });
     return {};
 }
 

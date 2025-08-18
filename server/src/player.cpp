@@ -872,7 +872,7 @@ bool Player::struckDamage(uint64_t, const DamageNode &node)
     if(damage > 0){
         updateHealth(-damage);
         if(m_sdHealth.dead()){
-            goDie();
+            onDie();
         }
     }
     return true;
