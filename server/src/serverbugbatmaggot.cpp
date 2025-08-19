@@ -34,7 +34,4 @@ corof::awaitable<> ServerBugbatMaggot::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
-    co_return;
 }

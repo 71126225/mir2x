@@ -47,6 +47,4 @@ corof::awaitable<> ServerRootSpider::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
 }

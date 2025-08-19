@@ -584,6 +584,16 @@ std::optional<std::tuple<int, int, int>> BattleObject::oneStepReach(int dir, int
     return result;
 }
 
+bool BattleObject::goDie()
+{
+    if(m_sdHealth.dead()){
+        return false;
+    }
+
+    setHealth(0);
+    return true;
+}
+
 void BattleObject::goGhost()
 {
     fflassert(m_sdHealth.dead());
@@ -1075,6 +1085,9 @@ bool BattleObject::updateHealth(int addHP, int addMP, int addMaxHP, int addMaxMP
 {
     if(m_sdHealth.updateHealth(addHP, addMP, addMaxHP, addMaxMP)){
         dispatchInViewCONetPackage(SM_HEALTH, cerealf::serialize(m_sdHealth));
+        if(m_sdHealth.dead()){
+            onDie();
+        }
         return true;
     }
     return false;
@@ -1084,6 +1097,9 @@ bool BattleObject::setHealth(std::optional<int> hp, std::optional<int> mp, std::
 {
     if(m_sdHealth.setHealth(hp, mp, maxHP, maxMP)){
         dispatchInViewCONetPackage(SM_HEALTH, cerealf::serialize(m_sdHealth));
+        if(m_sdHealth.dead()){
+            onDie();
+        }
         return true;
     }
     return false;

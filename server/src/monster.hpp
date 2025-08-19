@@ -193,7 +193,6 @@ class Monster: public BattleObject
         bool canAttack(bool) const override;
 
     protected:
-        bool goDie() override;
         void onDie() override;
 
     protected:

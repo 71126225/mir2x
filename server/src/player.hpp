@@ -293,7 +293,6 @@ class Player final: public BattleObject
         }
 
     protected:
-        bool goDie() override;
         void onDie() override;
 
     protected:

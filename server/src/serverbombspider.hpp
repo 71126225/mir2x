@@ -23,7 +23,8 @@ class ServerBombSpider final: public Monster
                 }
 
                 if(!targetUID){
-                    break; // goDie
+                    goDie();
+                    break;
                 }
 
                 const auto coLocOpt = co_await getCOLocation(targetUID);
@@ -33,13 +34,12 @@ class ServerBombSpider final: public Monster
 
                 const auto &coLoc = coLocOpt.value();
                 if((mapID() != coLoc.mapUID) || (mathf::LDistance2<int>(X(), Y(), coLoc.x, coLoc.y) <= 1)){
-                    break; // goDie
+                    goDie();
+                    break;
                 }
 
                 co_await trackUID(targetUID, {});
                 co_await asyncWait(200);
             }
-
-            goDie();
         }
 };

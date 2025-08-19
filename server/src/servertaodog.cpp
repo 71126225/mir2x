@@ -33,18 +33,16 @@ corof::awaitable<> ServerTaoDog::runAICoro()
                 setStandMode(false);
             }
 
-            if(m_actorPod->checkUIDValid(masterUID())){
-                co_await followMaster();
+            if(co_await queryDead(masterUID())){
+                goDie();
             }
             else{
-                break;
+                co_await followMaster();
             }
         }
 
         co_await asyncWait(1000);
     }
-
-    goDie();
 }
 
 corof::awaitable<bool> ServerTaoDog::attackUID(uint64_t targetUID, int dcType)

@@ -61,8 +61,6 @@ corof::awaitable<> ServerMinotaurGuardian::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
 }
 
 DamageNode ServerMinotaurGuardian::getAttackDamage(int dc, int) const

@@ -62,6 +62,4 @@ corof::awaitable<> ServerShipwreckLord::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
 }

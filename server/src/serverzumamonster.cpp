@@ -36,8 +36,6 @@ corof::awaitable<> ServerZumaMonster::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
 }
 
 corof::awaitable<> ServerZumaMonster::onAMAttack(const ActorMsgPack &mpk)

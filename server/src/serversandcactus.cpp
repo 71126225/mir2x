@@ -28,8 +28,6 @@ corof::awaitable<> ServerSandCactus::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
 }
 
 DamageNode ServerSandCactus::getAttackDamage(int dc, int) const

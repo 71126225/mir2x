@@ -114,7 +114,7 @@ class BattleObject: public CharObject
         virtual void reportCO(uint64_t) = 0;
 
     protected:
-        virtual bool goDie() = 0;
+        virtual bool goDie();
         virtual void onDie() = 0;
 
     protected:

@@ -65,8 +65,6 @@ corof::awaitable<> ServerWoomaTaurus::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
 }
 
 void ServerWoomaTaurus::sendThunderBolt(uint64_t uid)

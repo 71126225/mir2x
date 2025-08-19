@@ -68,6 +68,4 @@ corof::awaitable<> ServerAntHealer::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
 }

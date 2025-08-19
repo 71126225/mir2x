@@ -53,8 +53,6 @@ corof::awaitable<> ServerZumaTaurus::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
 }
 
 corof::awaitable<> ServerZumaTaurus::onAMAttack(const ActorMsgPack &mpk)

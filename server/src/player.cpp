@@ -637,18 +637,6 @@ void Player::reportNextStrike()
     postNetMessage(SM_NEXTSTRIKE);
 }
 
-bool Player::goDie()
-{
-    if(m_sdHealth.dead()){
-        return false;
-    }
-
-    setHealth(0);
-    onDie();
-
-    return true;
-}
-
 void Player::onDie()
 {
     m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_DIE)");

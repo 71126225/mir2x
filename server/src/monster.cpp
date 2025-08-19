@@ -439,9 +439,6 @@ corof::awaitable<> Monster::runAICoro()
 
         co_await asyncIdleWait(1000);
     }
-
-    goDie();
-    co_return;
 }
 
 corof::awaitable<> Monster::onActorMsg(const ActorMsgPack &rstMPK)
@@ -636,18 +633,6 @@ bool Monster::canAttack(bool checkAttackLock) const
 
 bool Monster::dcValid(int, bool)
 {
-    return true;
-}
-
-bool Monster::goDie()
-{
-    if(m_sdHealth.dead()){
-        return false;
-    }
-
-    setHealth(0);
-    onDie();
-
     return true;
 }
 
