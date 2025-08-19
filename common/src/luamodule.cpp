@@ -241,6 +241,11 @@ LuaModule::LuaModule()
         return uidf::getUIDType(uid);
     });
 
+    bindFunction("getUIDString", [](uint64_t uid) -> std::string
+    {
+        return uidf::getUIDString(uid);
+    });
+
     bindFunction("isPlayer", [](uint64_t uid)
     {
         return uidf::isPlayer(uid);

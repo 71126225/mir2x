@@ -93,11 +93,6 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         return m_actorPod->UID();
     });
 
-    bindFunction("getUIDString", [this]() -> std::string
-    {
-        return uidf::getUIDString(m_actorPod->UID());
-    });
-
     bindFunction("getThreadKey", [this]() -> uint64_t
     {
         return m_currRunner->key;
