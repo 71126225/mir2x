@@ -26,6 +26,7 @@ setQuestFSMTable(
                     local playerUID = ...
                     setQuestState{uid=playerUID, state='quest_abort_by_die'}
                 ]=])
+                return true
             end)
         ]])
         setQuestState{uid=uid, state='quest_setup_player_offline_trigger'}
@@ -41,6 +42,7 @@ setQuestFSMTable(
                     local playerUID = ...
                     setQuestState{uid=playerUID, state='quest_abort_by_offline'}
                 ]=])
+                return true
             end)
         ]])
         setQuestState{uid=uid, state='quest_setup_player_die_trigger'}
