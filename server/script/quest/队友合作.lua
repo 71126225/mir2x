@@ -45,7 +45,7 @@ setQuestFSMTable(
                 return true
             end)
         ]])
-        setQuestState{uid=uid, state='quest_setup_player_die_trigger'}
+        setQuestState{uid=uid, state='quest_setup_kill_trigger'}
     end,
 
     quest_setup_kill_trigger = function(uid, value)
@@ -71,6 +71,7 @@ setQuestFSMTable(
         if waitNotify(10 * 1000) then
             uidRemoteCall(uid, [[ postString([=[挑战成功！]=]) ]])
             setQuestState{uid=uid, state=SYS_DONE}
+
         else
             uidRemoteCall(uid, triggerKey,
             [[
