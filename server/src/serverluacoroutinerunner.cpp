@@ -108,7 +108,9 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         return m_currRunner->keyPair();
     });
 
-    bindFunction("getThreadAddress", [this]() -> std::array<uint64_t, 3>
+    // don't return std::array<uint64_t, 3> here
+    // sol2 doesn't create an array, but an object with metatable, can not be serialized
+    bindFunction("getThreadAddress", [this]() -> std::tuple<uint64_t, uint64_t, uint64_t>
     {
         return {m_actorPod->UID(), m_currRunner->key, m_currRunner->seqID};
     });
