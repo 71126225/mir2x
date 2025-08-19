@@ -441,11 +441,13 @@ void Server::createDefaultDatabase()
     createAccount("good", "123456");
     createAccount("id_1", "123456");
     createAccount("id_2", "123456");
+    createAccount("id_3", "123456");
 
     createAccountCharacter("test", to_cstr(u8"亚当"),  true, JOB_TAOIST  | JOB_WIZARD);
     createAccountCharacter("good", to_cstr(u8"夏娃"), false, JOB_WARRIOR | JOB_WIZARD);
     createAccountCharacter("id_1", to_cstr(u8"逗逼"),  true, JOB_WIZARD);
     createAccountCharacter("id_2", to_cstr(u8"盖亚"),  true, JOB_WIZARD);
+    createAccountCharacter("id_3", to_cstr(u8"逗夏"),  true, JOB_TAOIST);
 
     addLog(LOGTYPE_INFO, "Create default sqlite3 database done");
 }

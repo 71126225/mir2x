@@ -49,16 +49,16 @@ setQuestFSMTable(
     end,
 
     quest_setup_kill_trigger = function(uid, value)
-        local triggerKey = uidRemoteCall(uid, getThreadAddress(),
+        local triggerKey = uidRemoteCall(uid, getQuestName(), getThreadAddress(),
         [[
-            local threadAddress = ...
+            local questName, threadAddress = ...
             local killCount = 0
 
             return addTrigger(SYS_ON_KILL, function(monsterID)
                 local monsterName = getMonsterName(monsterID)
                 if monsterName then
                     killCount = killCount + 1
-                    postString([=[挑战正在进行中，消灭一只%s，你已经消灭%d只怪物。]=], monsterName, killCount)
+                    postString([=[任务『%s』正在进行中，消灭一只%s，你已经消灭%d只怪物。]=], questName, monsterName, killCount)
 
                     if killCount >= 5 then
                         sendNotify(threadAddress, true)
@@ -88,9 +88,11 @@ setQuestFSMTable(
             local questName = ...
             postString([=[你死了，任务『%s』终止。]=], questName)
         ]])
+        setQuestState{uid=uid, state=SYS_DONE}
     end,
 
     quest_abort_by_offline = function(uid, args)
+        setQuestState{uid=uid, state=SYS_DONE}
     end,
 })
 
