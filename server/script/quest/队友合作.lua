@@ -68,7 +68,7 @@ setQuestFSMTable(
             end)
         ]])
 
-        if waitNotify(10 * 1000) then
+        if waitNotify(30 * 1000) then
             uidRemoteCall(uid, [[ postString([=[挑战成功！]=]) ]])
             setQuestState{uid=uid, state=SYS_DONE}
 
@@ -77,7 +77,7 @@ setQuestFSMTable(
             [[
                 local triggerKey = ...
                 deleteTrigger(triggerKey)
-                postString([=[挑战失败，你超时了。]=])
+                postString([=[30秒已过，你超时了，挑战失败。]=])
             ]])
         end
     end,
