@@ -83,11 +83,24 @@ setQuestFSMTable(
     end,
 
     quest_abort_by_die = function(uid, args)
-        uidRemoteCall(uid, getQuestName(),
-        [[
-            local questName = ...
-            postString([=[你死了，任务『%s』终止。]=], questName)
-        ]])
+        local team = getQuestTeam(uid)
+        for _, playerUID in ipairs(team[SYS_QUESTFIELD.TEAM.ROLELIST]) do
+            uidRemoteCall(playerUID, uid, getQuestName(),
+            [[
+                local deadPlayerUID, questName = ...
+                if deadPlayerUID == getUID() then
+                    postString([=[你死了，任务『%s』终止。]=], questName)
+                else
+                    postString([=[你的队友『%s』死了，任务『%s』终止。]=], server.player.getName(deadPlayerUID), questName)
+                end
+            ]])
+
+            if playerUID ~= uid then
+                runQuestThread(function()
+                    setQuestState{uid=playerUID, state=SYS_DONE}
+                end)
+            end
+        end
         setQuestState{uid=uid, state=SYS_DONE}
     end,
 
