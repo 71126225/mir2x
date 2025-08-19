@@ -244,19 +244,17 @@ void ActorNetDriver::close(uint32_t channID)
     // it should call this function to schedule a shutdown event via m_context->post()
 
     // after this function call, the channel slot can still be not empty
-    // player actor should keep a flag(m_channID.has_value() && m_channID.value() == 1) to indicate it shall not post any new message
+    // player actor should keep a flag(m_channID.has_value() && m_channID.value() == 0) to indicate it shall not post any new message
 
-    std::atomic_flag closeDone;
-    asio::post(*m_context, [channID, &closeDone, this]()
+    std::atomic_flag done;
+    asio::post(*m_context, [channID, &done, this]()
     {
-        // TODO shall I add any validation to confirm that only the bind player UID can close the channel?
-        //      otherwise a careless call to ActorNetDriver::close() with random channID can crash other player's connection
         doClose(channID);
-        closeDone.test_and_set();
-        closeDone.notify_all();
+        done.test_and_set();
+        done.notify_all();
     });
 
-    closeDone.wait(false);
+    done.wait(false);
     auto slotPtr = m_peerSlotList.at(channID).get();
     {
         const std::lock_guard<std::mutex> lockGuard(slotPtr->lock);

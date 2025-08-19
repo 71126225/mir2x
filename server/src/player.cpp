@@ -804,30 +804,33 @@ void Player::reportOffline(uint64_t nUID, uint64_t nMapUID)
     // player can initiatively start the offline procedure
     // in this case the m_channID still contains a good channel id, we need to call close
 
-    if(m_channID.has_value() && m_channID.value()){
+    if(m_channID.value_or(0)){
         SMOffline smO;
         std::memset(&smO, 0, sizeof(smO));
 
         smO.UID = nUID;
         smO.mapUID = nMapUID;
         postNetMessage(SM_OFFLINE, smO);
-
-        // player initiatively close the channel
-        // the NetDriver::close() only *request* the channel to be closed, it schedule an event
-        // after this line the channel slot may still be non-empty, but we shall not post any network message
-        // so use m_channID = 0 as a flag, please check comments for Player::on_AM_BADCHANNEL()
-
-        m_actorPod->closeNet();
-        m_channID = 0;
     }
 }
 
 bool Player::goOffline()
 {
+    if(!m_channID.value_or(0)){
+        return false;
+    }
+
     dispatchOffline();
-    reportOffline(UID(), mapUID());
+    reportOffline(UID(), mapUID()); // report self offline
+
+    m_channID = 0;
+    m_actorPod->closeNet(); // blocking call, channel slot has been destroyed
 
     dbUpdateMapGLoc();
+    if(m_sdHealth.dead()){
+        setHealth(10);
+    }
+
     m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_trigger(SYS_ON_OFFLINE)", {}, [this](const sol::protected_function_result &)
     {
         deactivate();
@@ -837,16 +840,14 @@ bool Player::goOffline()
     {
         deactivate();
     });
+
     return true;
 }
 
 void Player::postNetMessage(uint8_t headCode, const void *buf, size_t bufLen, uint64_t respID)
 {
-    if(m_channID.has_value() && m_channID.value()){
+    if(m_channID.value_or(0)){
         m_actorPod->postNet(headCode, (const uint8_t *)(buf), bufLen, respID);
-    }
-    else{
-        goOffline();
     }
 }
 
