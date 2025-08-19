@@ -63,6 +63,5 @@ class Quest final: public ServerObject
         corof::awaitable<> onActorMsg(const ActorMsgPack &) override;
 
     protected:
-        corof::awaitable<> on_AM_REMOTECALL     (const ActorMsgPack &);
-        corof::awaitable<> on_AM_RUNQUESTTRIGGER(const ActorMsgPack &);
+        corof::awaitable<> on_AM_REMOTECALL(const ActorMsgPack &);
 };

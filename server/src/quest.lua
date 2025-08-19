@@ -429,6 +429,7 @@ function _RSVD_NAME_enterQuestState(uid, fsm, state, args)
 end
 
 local _RSVD_NAME_triggers = {}
+local _RSVD_NAME_triggerSeqID = 0
 function addQuestTrigger(triggerType, callback)
     assertType(triggerType, 'integer')
     assertType(callback, 'function')
@@ -441,9 +442,34 @@ function addQuestTrigger(triggerType, callback)
         _RSVD_NAME_callFuncCoop('modifyQuestTriggerType', triggerType, true)
     end
 
-    table.insert(_RSVD_NAME_triggers[triggerType], callback)
+    _RSVD_NAME_triggerSeqID = _RSVD_NAME_triggerSeqID + 1
+    _RSVD_NAME_triggers[triggerType][_RSVD_NAME_triggerSeqID] = callback
+    return {triggerType, _RSVD_NAME_triggerSeqID}
 end
 
+-- delte quest trigger
+-- this disables all player to trigger the deleted one
+function deleteQuestTrigger(triggerPath)
+    assert(isArray(triggerPath))
+
+    local triggerType  = triggerPath[1]
+    local triggerSeqID = triggerPath[2]
+
+    if not _RSVD_NAME_triggers[triggerType] then
+        return
+    end
+
+    _RSVD_NAME_triggers[triggerType][triggerSeqID] = nil
+
+    if tableEmpty(_RSVD_NAME_triggers[triggerType]) then
+        _RSVD_NAME_triggers[triggerType] = nil
+        _RSVD_NAME_callFuncCoop('modifyQuestTriggerType', triggerType, false)
+    end
+end
+
+-- whenever a player event happens it runs all locally installed triggers by addTrigger(). also
+-- it sends event{type, args} to servicecore, servicecore dispatches it to all quests that sensitive to this event
+-- which eventually call this function: _RSVD_NAME_trigger()
 function _RSVD_NAME_trigger(triggerType, uid, ...)
     assertType(triggerType, 'integer')
     assertType(uid        , 'integer')
@@ -472,28 +498,12 @@ function _RSVD_NAME_trigger(triggerType, uid, ...)
         config[3](args)
     end
 
-    local doneKeyList = {}
     if _RSVD_NAME_triggers[triggerType] then
         for triggerKey, triggerFunc in pairs(_RSVD_NAME_triggers[triggerType]) do
-            local result = triggerFunc(uid, table.unpack(args, 1, #config[2]))
-            if type(result) == 'boolean' then
-                if result then
-                    table.insert(doneKeyList, triggerKey)
-                end
-            elseif type(result) ~= 'nil' then
-                table.insert(doneKeyList, triggerKey)
-                addLog(LOGTYPE_WARNING, 'Trigger %s callback returns invalid type %s, key %s removed.', config[1], type(result), tostring(triggerKey))
+            if triggerFunc(uid, table.unpack(args, 1, #config[2])) ~= nil then
+                addLog(LOGTYPE_WARNING, 'Quest trigger %s callback shall never return any value other than nil')
             end
         end
-    end
-
-    for _, key in ipairs(doneKeyList) do
-        _RSVD_NAME_triggers[triggerType][key] = nil
-    end
-
-    if tableEmpty(_RSVD_NAME_triggers[triggerType]) then
-        _RSVD_NAME_triggers[triggerType] = nil
-        _RSVD_NAME_callFuncCoop('modifyQuestTriggerType', triggerType, false)
     end
 end
 

@@ -134,62 +134,6 @@ struct SDInitMonster
 
 using SDInitCharObject = std::variant<SDInitGuard, SDInitPlayer, SDInitNPChar, SDInitMonster>;
 
-struct SDQuestTriggerLevelUp
-{
-    int oldLevel = 0;
-    int newLevel = 0;
-
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(oldLevel, newLevel);
-    }
-};
-
-struct SDQuestTriggerKill
-{
-    uint32_t monsterID = 0;
-
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(monsterID);
-    }
-};
-
-struct SDQuestTriggerGainExp
-{
-    int addedExp = 0;
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(addedExp);
-    }
-};
-
-struct SDQuestTriggerGainGold
-{
-    int addedGold = 0;
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(addedGold);
-    }
-};
-
-struct SDQuestTriggerGainItem
-{
-    uint32_t itemID = 0;
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(itemID);
-    }
-};
-
-using SDQuestTriggerVar = std::variant<
-    SDQuestTriggerLevelUp,
-    SDQuestTriggerKill,
-    SDQuestTriggerGainExp,
-    SDQuestTriggerGainGold,
-    SDQuestTriggerGainItem
->;
-
 struct SDNPCXMLLayout
 {
     uint64_t npcUID = 0;

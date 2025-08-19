@@ -172,9 +172,14 @@ for triggerType = SYS_ON_BEGIN, (SYS_ON_END - 1)
 do
     addTrigger(triggerType, function(...)
         for _, questUID in ipairs(_RSVD_NAME_callFuncCoop('queryQuestTriggerList', triggerType)) do
-            -- post trigger parameter to quest
-            -- won't wait for trigger done, don't assume target quest will reply
-            _RSVD_NAME_runQuestTrigger(questUID, triggerType, ...)
+            uidRemoteCall(questUID, triggerType, getUID(), table.pack(...),
+            [[
+                -- run quest triggers
+                -- quest trigger and player triggers are designed to have identical parameters
+
+                local triggerType, playerUID, packedArgs = ...
+                _RSVD_NAME_trigger(triggerType, playerUID, table.unpack(packedArgs, 1, packedArgs.n))
+            ]])
         end
     end)
 end

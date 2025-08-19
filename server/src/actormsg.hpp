@@ -133,7 +133,6 @@ enum ActorMsgPackType: int
     AM_TEAMPLAYER,
     AM_TEAMUPDATE,
     AM_TEAMMEMBERLIST,
-    AM_RUNQUESTTRIGGER,
     AM_SENDNOTIFY,
     AM_REGISTERQUEST,
     AM_REQUESTJOINTEAM,
@@ -266,7 +265,6 @@ inline const char *mpkName(int type)
         _add_mpk_type_case(AM_TEAMPLAYER)
         _add_mpk_type_case(AM_TEAMUPDATE)
         _add_mpk_type_case(AM_TEAMMEMBERLIST)
-        _add_mpk_type_case(AM_RUNQUESTTRIGGER)
         _add_mpk_type_case(AM_SENDNOTIFY)
         _add_mpk_type_case(AM_REGISTERQUEST)
         _add_mpk_type_case(AM_REQUESTJOINTEAM)

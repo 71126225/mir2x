@@ -320,10 +320,6 @@ corof::awaitable<> Quest::onActorMsg(const ActorMsgPack &mpk)
             {
                 return on_AM_REMOTECALL(mpk);
             }
-        case AM_RUNQUESTTRIGGER:
-            {
-                return on_AM_RUNQUESTTRIGGER(mpk);
-            }
         default:
             {
                 throw fflerror("unsupported message: %s", mpkName(mpk.type()));

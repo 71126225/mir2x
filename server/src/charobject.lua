@@ -7,6 +7,9 @@ function addTrigger(triggerType, callback)
     assertType(triggerType, 'integer')
     assertType(callback, 'function')
 
+    assert(triggerType >= SYS_ON_BEGIN, triggerType)
+    assert(triggerType <  SYS_ON_END  , triggerType)
+
     if not _RSVD_NAME_triggers[triggerType] then
         _RSVD_NAME_triggers[triggerType] = {}
     end
@@ -18,6 +21,7 @@ end
 
 function deleteTrigger(triggerPath)
     assert(isArray(triggerPath))
+
     local triggerType  = triggerPath[1]
     local triggerSeqID = triggerPath[2]
 
@@ -25,7 +29,7 @@ function deleteTrigger(triggerPath)
         return
     end
 
-    _RSVD_NAME_triggers[triggerType][_RSVD_NAME_triggerSeqID] = nil
+    _RSVD_NAME_triggers[triggerType][triggerSeqID] = nil
 
     if tableEmpty(_RSVD_NAME_triggers[triggerType]) then
         _RSVD_NAME_triggers[triggerType] = nil
