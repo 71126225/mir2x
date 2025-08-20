@@ -2040,10 +2040,10 @@ corof::awaitable<bool> Player::followTeamLeader()
     }
 
     if(const auto &coLoc = coLocOpt.value(); coLoc.mapUID != mapUID()){
-        const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 3);
+        const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 1);
         co_return co_await requestMapSwitch(coLoc.mapUID, backX, backY, false);
     }
-    else if(const auto distance = mathf::LDistance<double>(coLoc.x, coLoc.y, X(), Y()); distance < 10.0){
+    else if(const auto distance = mathf::CDistance<double>(coLoc.x, coLoc.y, X(), Y()); cdist <= 1){
         const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 1);
         switch(mathf::LDistance2<int>(backX, backY, X(), Y())){
             case 0:
@@ -2065,6 +2065,15 @@ corof::awaitable<bool> Player::followTeamLeader()
                     co_return co_await requestMove(nextGLoc.X, nextGLoc.Y, moveSpeed(), false, false);
                 }
         }
+    }
+    else if(cdist < 10){
+        BattleObject::BOPathFinder finder(this, 2);
+        if(!finder.search(X(), Y(), Direction(), coLoc.x, coLoc.y).hasPath()){
+            co_return false;
+        }
+
+        const auto nextGLoc = finder.getPathNode().at(1);
+        co_return co_await requestMove(nextGLoc.X, nextGLoc.Y, moveSpeed(), false, false);
     }
     else{
         const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 3);
