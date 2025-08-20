@@ -2043,7 +2043,7 @@ corof::awaitable<bool> Player::followTeamLeader()
         const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 1);
         co_return co_await requestMapSwitch(coLoc.mapUID, backX, backY, false);
     }
-    else if(const auto distance = mathf::CDistance<double>(coLoc.x, coLoc.y, X(), Y()); cdist <= 1){
+    else if(const auto cdist = mathf::CDistance<double>(coLoc.x, coLoc.y, X(), Y()); cdist <= 1){
         const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 1);
         switch(mathf::LDistance2<int>(backX, backY, X(), Y())){
             case 0:
