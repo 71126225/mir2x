@@ -476,7 +476,7 @@ class Player final: public BattleObject
         }
 
     public:
-        void notifySlaveGLoc();
+        void afterChangeGLoc();
 
     public:
         int maxHP() const;

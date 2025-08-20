@@ -168,7 +168,7 @@ corof::awaitable<bool> BattleObject::requestJump(int nX, int nY, int nDirection)
                 trimInViewCO();
 
                 if(isPlayer()){
-                    dynamic_cast<Player *>(this)->notifySlaveGLoc();
+                    dynamic_cast<Player *>(this)->afterChangeGLoc();
                 }
 
                 co_await m_buffList.runOnTrigger(BATGR_MOVE);
@@ -290,6 +290,10 @@ corof::awaitable<bool> BattleObject::requestMove(int dstX, int dstY, int speed, 
                 m_actorPod->post(rmpk.fromAddr(), {AM_MOVEOK, amMOK});
                 trimInViewCO();
 
+                co_await m_buffList.runOnTrigger(BATGR_MOVE);
+                co_await m_buffList.runOnBOMove();
+                co_await m_buffList.dispatchAura();
+
                 // here firstly we make map to boardcast the ActionMove
                 // then if BO is a player, notify all its slaves with ActionStand
 
@@ -297,13 +301,8 @@ corof::awaitable<bool> BattleObject::requestMove(int dstX, int dstY, int speed, 
                 // from neighbor's view it firstly get an ActionStand but location changed, then get an ActionMove but destination is current location
 
                 if(isPlayer()){
-                    dynamic_cast<Player *>(this)->notifySlaveGLoc();
+                    dynamic_cast<Player *>(this)->afterChangeGLoc();
                 }
-
-                co_await m_buffList.runOnTrigger(BATGR_MOVE);
-                co_await m_buffList.runOnBOMove();
-                co_await m_buffList.dispatchAura();
-
                 co_return true;
             }
         default:
@@ -379,7 +378,7 @@ corof::awaitable<bool> BattleObject::requestSpaceMove(int locX, int locY, bool s
 
                 if(isPlayer()){
                     dynamic_cast<Player *>(this)->reportAction(UID(), mapUID(), amSMOK.action);
-                    dynamic_cast<Player *>(this)->notifySlaveGLoc();
+                    dynamic_cast<Player *>(this)->afterChangeGLoc();
                 }
 
                 co_await m_buffList.runOnTrigger(BATGR_MOVE);
@@ -486,7 +485,7 @@ corof::awaitable<bool> BattleObject::requestMapSwitch(uint64_t argMapUID, int lo
     trimInViewCO();
     if(isPlayer()){
         dynamic_cast<Player *>(this)->reportStand();
-        dynamic_cast<Player *>(this)->notifySlaveGLoc();
+        dynamic_cast<Player *>(this)->afterChangeGLoc();
     }
 
     co_await m_buffList.runOnTrigger(BATGR_MOVE);

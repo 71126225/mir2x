@@ -1857,10 +1857,18 @@ std::vector<std::string> Player::parseRemoteCall(const char *query)
     return result;
 }
 
-void Player::notifySlaveGLoc()
+void Player::afterChangeGLoc()
 {
     for(const auto uid: m_slaveList){
         dispatchAction(uid, makeActionStand());
+    }
+
+    if(m_teamLeader){
+        for(const auto uid: m_teamMemberList){
+            if(uid != UID()){
+                dispatchAction(uid, makeActionStand());
+            }
+        }
     }
 }
 
