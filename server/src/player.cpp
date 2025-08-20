@@ -2027,3 +2027,47 @@ corof::awaitable<std::optional<SDTeamMemberList>> Player::pullTeamMemberList()
 
     co_return sdTML;
 }
+
+corof::awaitable<bool> Player::followTeamLeader()
+{
+    if(!m_teamLeader){
+        co_return false;
+    }
+
+    const auto coLocOpt = co_await getCOLocation(m_teamLeader);
+    if(!coLocOpt.has_value()){
+        co_return false;
+    }
+
+    if(const auto &coLoc = coLocOpt.value(); coLoc.mapUID != mapUID()){
+        const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 3);
+        co_return co_await requestMapSwitch(coLoc.mapUID, backX, backY, false);
+    }
+    else if(const auto distance = mathf::LDistance<double>(coLoc.x, coLoc.y, X(), Y()); distance < 10.0){
+        const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 1);
+        switch(mathf::LDistance2<int>(backX, backY, X(), Y())){
+            case 0:
+                {
+                    if(Direction() != coLoc.direction){
+                        m_direction = coLoc.direction;
+                        dispatchAction(makeActionStand());
+                    }
+                    co_return true;
+                }
+            default:
+                {
+                    BattleObject::BOPathFinder finder(this, 2);
+                    if(!finder.search(X(), Y(), Direction(), backX, backY).hasPath()){
+                        co_return false;
+                    }
+
+                    const auto nextGLoc = finder.getPathNode().at(1);
+                    co_return co_await requestMove(nextGLoc.X, nextGLoc.Y, moveSpeed(), false, false);
+                }
+        }
+    }
+    else{
+        const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 3);
+        co_return co_await requestSpaceMove(backX, backY, false);
+    }
+}

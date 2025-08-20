@@ -236,6 +236,7 @@ class Player final: public BattleObject
         virtual void reportAction(uint64_t, uint64_t, const ActionNode &);
 
     protected:
+        corof::awaitable<bool> followTeamLeader();
         corof::awaitable<std::optional<SDTeamMemberList>> pullTeamMemberList();
 
     protected:

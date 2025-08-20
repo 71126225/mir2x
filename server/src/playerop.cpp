@@ -110,42 +110,7 @@ corof::awaitable<> Player::on_AM_ACTION(const ActorMsgPack &mpk)
     reportAction(amA.UID, amA.mapUID, amA.action);
 
     if(m_teamLeader == amA.UID){
-        const auto leaderDir = amA.action.direction;
-        // if(mapUID() == amA.mapUID && mathf::LDistance<double>(dstX, dstY, X(), Y()) < 10.0){
-        //
-        //     // not that long
-        //     // should follow team leader by step
-        //     const auto [backX, backY] = pathf::getBackGLoc(dstX, dstY, leaderDir, 1);
-        //
-        //     switch(mathf::LDistance2<int>(backX, backY, X(), Y())){
-        //         case 0:
-        //             {
-        //                 if(Direction() != leaderDir){
-        //                     m_direction = leaderDir;
-        //                     dispatchAction(makeActionStand());
-        //                 }
-        //                 co_return;
-        //             }
-        //         default:
-        //             {
-        //                 co_await moveOneStep(backX, backY);
-        //                 co_return;
-        //             }
-        //     }
-        // }
-        // else
-        {
-            // long distance
-            // need to do spacemove or even mapswitch
-            const auto [backX, backY] = pathf::getBackGLoc(dstX, dstY, leaderDir, 3);
-
-            if(mapUID() == amA.mapUID){
-                co_await requestSpaceMove(backX, backY, false);
-            }
-            else{
-                co_await requestMapSwitch(amA.mapUID, backX, backY, false);
-            }
-        }
+        co_await followTeamLeader();
     }
 }
 
