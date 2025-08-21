@@ -109,19 +109,8 @@ corof::awaitable<> Player::on_AM_ACTION(const ActorMsgPack &mpk)
     // always need to notify client for CO gets added/moved/removed
     reportAction(amA.UID, amA.mapUID, amA.action);
 
-    switch(amA.action.type){
-        case ACTION_MOVE:
-        case ACTION_SPACEMOVE:
-            {
-                if(m_teamLeader == amA.UID){
-                    co_await followTeamLeader();
-                }
-                break;
-            }
-        default:
-            {
-                break;
-            }
+    if(m_teamLeader == amA.UID){
+        co_await followTeamLeader();
     }
 }
 
