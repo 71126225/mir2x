@@ -2039,6 +2039,33 @@ corof::awaitable<bool> Player::followTeamLeader()
         co_return false;
     }
 
+    const auto fnRequestMove = [thisptr = this](this auto, int dstX, int dstY) -> corof::awaitable<bool>
+    {
+        BattleObject::BOPathFinder finder(thisptr, 1);
+        if(!finder.search(thisptr->X(), thisptr->Y(), thisptr->Direction(), dstX, dstY).hasPath()){
+            co_return false;
+        }
+
+        const auto oldX = thisptr->X();
+        const auto oldY = thisptr->Y();
+
+        const auto nextGLoc = finder.getPathNode().at(1);
+        const auto doneMove = co_await thisptr->requestMove(nextGLoc.X, nextGLoc.Y, thisptr->moveSpeed(), false, false);
+
+        if(doneMove){
+            thisptr->reportAction(thisptr->UID(), thisptr->mapUID(), ActionMove
+            {
+                .speed = SYS_DEFSPEED,
+                .x = oldX,
+                .y = oldY,
+                .aimX = thisptr->X(),
+                .aimY = thisptr->Y(),
+            });
+        }
+
+        co_return doneMove;
+    };
+
     if(const auto &coLoc = coLocOpt.value(); coLoc.mapUID != mapUID()){
         const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 1);
         co_return co_await requestMapSwitch(coLoc.mapUID, backX, backY, false);
@@ -2056,24 +2083,12 @@ corof::awaitable<bool> Player::followTeamLeader()
                 }
             default:
                 {
-                    BattleObject::BOPathFinder finder(this, 2);
-                    if(!finder.search(X(), Y(), Direction(), backX, backY).hasPath()){
-                        co_return false;
-                    }
-
-                    const auto nextGLoc = finder.getPathNode().at(1);
-                    co_return co_await requestMove(nextGLoc.X, nextGLoc.Y, moveSpeed(), false, false);
+                    co_return co_await fnRequestMove(backX, backY);
                 }
         }
     }
     else if(cdist < 10){
-        BattleObject::BOPathFinder finder(this, 2);
-        if(!finder.search(X(), Y(), Direction(), coLoc.x, coLoc.y).hasPath()){
-            co_return false;
-        }
-
-        const auto nextGLoc = finder.getPathNode().at(1);
-        co_return co_await requestMove(nextGLoc.X, nextGLoc.Y, moveSpeed(), false, false);
+        co_return co_await fnRequestMove(coLoc.x, coLoc.y);
     }
     else{
         const auto [backX, backY] = pathf::getBackGLoc(coLoc.x, coLoc.y, coLoc.direction, 3);
