@@ -27,12 +27,15 @@ class InputLine: public Widget
         std::function<void(std::string)> m_onChange;
 
     public:
+
         InputLine(
-                dir8_t argDir,
-                int argX,
-                int argY,
-                int argW,
-                int argH,
+                Widget::VarDir argDir,
+
+                Widget::VarOff argX,
+                Widget::VarOff argY,
+
+                Widget::VarSize argW,
+                Widget::VarSize argH,
 
                 bool argIMEEnabled,
 
@@ -53,11 +56,11 @@ class InputLine: public Widget
 
             : Widget
               {
-                  argDir,
-                  argX,
-                  argY,
-                  argW,
-                  argH,
+                  std::move(argDir),
+                  std::move(argX),
+                  std::move(argY),
+                  std::move(argW),
+                  std::move(argH),
 
                   {},
 

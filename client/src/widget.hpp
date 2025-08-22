@@ -708,6 +708,11 @@ class Widget: public WidgetTreeNode
             return this;
         }
 
+        // this function is used for top-down widgets
+        // means parent->afterResize() is the place to setup all its children's size
+        //
+        // if a widget's size is determined by its child
+        // this function should keep no effect, like LayoutBoard, whose size is decided by all typset inside
         virtual void afterResize() final
         {
             if(m_afterResizeHandler){
