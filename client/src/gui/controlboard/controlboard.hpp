@@ -15,6 +15,7 @@
 #include "wmdaniboard.hpp"
 #include "tritexbutton.hpp"
 #include "alphaonbutton.hpp"
+#include "cbleft.hpp"
 
 enum
 {
@@ -36,6 +37,9 @@ class ControlBoard: public Widget
     private:
         int m_stretchH = 196;
         const int m_stretchHMin = 196; // only can get bigger than original frame
+
+    private:
+        CBLeft m_cbLeft;
 
     private:
         Widget m_left;

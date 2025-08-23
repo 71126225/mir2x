@@ -62,6 +62,11 @@ extern SDLDevice *g_sdlDevice;
 ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwidget, bool autoDelete)
     : Widget(DIR_UPLEFT, 0, startY, boardW, 133, {}, pwidget, autoDelete)
     , m_processRun(proc)
+    , m_cbLeft
+      {
+          proc,
+      }
+
     , m_left
       {
           DIR_UPLEFT,
@@ -1140,6 +1145,8 @@ void ControlBoard::drawMiddleExpand() const
 
 void ControlBoard::drawEx(int, int, int, int, int, int) const
 {
+    m_cbLeft.draw();
+
     drawLeft();
 
     if(m_expand){
