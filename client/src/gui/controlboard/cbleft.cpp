@@ -82,7 +82,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
       {
           DIR_DOWNLEFT,
           33,
-          20,
+          95,
 
           &m_hpFull,
 
@@ -118,7 +118,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
 
           [](const Widget *)
           {
-              return g_progUseDB->retrieve(0X00000018);
+              return g_progUseDB->retrieve(0X00000019);
           },
       }
 
@@ -126,7 +126,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
       {
           DIR_DOWNLEFT,
           73,
-          20,
+          95,
 
           &m_mpFull,
 

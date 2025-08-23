@@ -1163,6 +1163,7 @@ bool ControlBoard::processEventDefault(const SDL_Event &event, bool valid)
 {
     bool takeEvent = false;
 
+    takeEvent |= m_cbLeft             .processEvent(event, valid && !takeEvent);
     takeEvent |= m_levelBox           .processEvent(event, valid && !takeEvent);
     takeEvent |= m_slider             .processEvent(event, valid && !takeEvent);
     takeEvent |= m_cmdLine            .processEvent(event, valid && !takeEvent);
