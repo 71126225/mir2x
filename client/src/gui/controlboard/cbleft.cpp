@@ -89,7 +89,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
           0,
           [this](const Widget *)
           {
-              return m_hp.h() - m_hp.gfxCropH();
+              return m_hpFull.h() - m_hp.gfxCropH();
           },
 
           m_hpFull.w(),
@@ -133,7 +133,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
           0,
           [this](const Widget *)
           {
-              return m_hp.h() - m_hp.gfxCropH();
+              return m_mpFull.h() - m_mp.gfxCropH();
           },
 
           m_mpFull.w(),
