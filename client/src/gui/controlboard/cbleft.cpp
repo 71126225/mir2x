@@ -189,7 +189,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
       {
           DIR_DOWN,
           153,
-          114,
+          115,
 
           &m_levelBarFull,
 
@@ -245,7 +245,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
       {
           DIR_DOWN,
           166,
-          114,
+          115,
 
           &m_inventoryBarFull,
 
