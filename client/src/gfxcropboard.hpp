@@ -89,10 +89,6 @@ class GfxCropBoard: public Widget
                 return;
             }
 
-            if(!gfxWidget()){
-                return;
-            }
-
             const int brdCropXOrig = gfxCropX();
             const int brdCropYOrig = gfxCropY();
 
