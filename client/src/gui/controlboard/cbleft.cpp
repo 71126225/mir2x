@@ -188,8 +188,8 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
     , m_levelBar
       {
           DIR_DOWN,
-          152,
-          93,
+          153,
+          114,
 
           &m_levelBarFull,
 
@@ -232,19 +232,20 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
           false,
           0,
 
-          [this](const Widget *)
+          [this](const Widget *) -> uint32_t
           {
-              const double  ratio = m_processRun->getMyHero()->getLevelRatio();
-              const uint8_t red   = static_cast<uint8_t>(to_dround(255 * ratio));
-              return colorf::RGBA(red, 255 - red, 0, 255);
+              if(auto myHero = m_processRun->getMyHero()){
+                  return ratio2Color(myHero->getInventoryRatio());
+              }
+              return 0;
           },
       }
 
     , m_inventoryBar
       {
           DIR_DOWN,
-          152,
-          20,
+          166,
+          114,
 
           &m_inventoryBarFull,
 
@@ -258,7 +259,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
           [this](const Widget *) -> int
           {
               if(auto myHero = m_processRun->getMyHero()){
-                  return to_dround(m_inventoryBarFull.h() * myHero->getLevelRatio());
+                  return to_dround(m_inventoryBarFull.h() * myHero->getInventoryRatio());
               }
               return 0;
           },
