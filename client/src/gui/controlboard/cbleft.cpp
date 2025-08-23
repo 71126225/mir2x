@@ -397,13 +397,18 @@ void CBLeft::updateMapGLoc()
 
 std::u8string CBLeft::getMapGLocStr() const
 {
-    const auto mapNameFull = std::string(to_cstr(DBCOM_MAPRECORD(m_processRun->mapID()).name));
-    const auto mapNameBase = mapNameFull.substr(0, mapNameFull.find('_'));
+    if(uidf::isMap(m_processRun->mapUID())){
+        if(const auto &mr = DBCOM_MAPRECORD(m_processRun->mapID())){
+            const auto mapNameFull = std::string(to_cstr(mr.name));
+            const auto mapNameBase = mapNameFull.substr(0, mapNameFull.find('_'));
 
-    if(auto myHero = m_processRun->getMyHero()){
-        return str_printf(u8"%s: %d %d", mapNameBase.c_str(), myHero->x(), myHero->y());
+            if(auto myHero = m_processRun->getMyHero()){
+                return str_printf(u8"%s: %d %d", mapNameBase.c_str(), myHero->x(), myHero->y());
+            }
+            else{
+                return str_printf(u8"%s", mapNameBase.c_str());
+            }
+        }
     }
-    else{
-        return str_printf(u8"%s", mapNameBase.c_str());
-    }
+    return {};
 }
