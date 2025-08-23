@@ -25,10 +25,11 @@ class Widget;        // size concept
 class WidgetTreeNode // tree concept, used by class Widget only
 {
     protected:
-        using VarDir  = std::variant<             dir8_t, std::function<dir8_t(const Widget *)>>;
-        using VarOff  = std::variant<                int, std::function<   int(const Widget *)>>;
-        using VarSize = std::variant<std::monostate, int, std::function<   int(const Widget *)>>;
-        using VarFlag = std::variant<               bool, std::function<  bool(const Widget *)>>;
+        using VarDir   = std::variant<             dir8_t, std::function<  dir8_t(const Widget *)>>;
+        using VarOff   = std::variant<                int, std::function<     int(const Widget *)>>;
+        using VarSize  = std::variant<std::monostate, int, std::function<     int(const Widget *)>>;
+        using VarFlag  = std::variant<               bool, std::function<    bool(const Widget *)>>;
+        using VarColor = std::variant<           uint32_t, std::function<uint32_t(const Widget *)>>;
 
     private:
         friend class Widget;
@@ -298,6 +299,7 @@ class Widget: public WidgetTreeNode
         using WidgetTreeNode::VarOff;
         using WidgetTreeNode::VarSize;
         using WidgetTreeNode::VarFlag;
+        using WidgetTreeNode::VarColor;
 
     public:
         using WidgetTreeNode::ChildElement;
@@ -421,6 +423,39 @@ class Widget: public WidgetTreeNode
                     return arg ? arg(widgetPtr) : throw fflerror("invalid argument");
                 },
             }, varFlag);
+        }
+
+    public:
+        static bool hasU32Color(const Widget::VarColor &varColor)
+        {
+            return varColor.index() == 0;
+        }
+
+        static bool hasFuncColor(const Widget::VarColor &varColor)
+        {
+            return varColor.index() == 1;
+        }
+
+        static uint32_t  asU32Color(const Widget::VarColor &varColor) { return std::get<uint32_t>(varColor); }
+        static uint32_t &asU32Color(      Widget::VarColor &varColor) { return std::get<uint32_t>(varColor); }
+
+        static const std::function<uint32_t(const Widget *)> &asFuncColor(const Widget::VarColor &varColor) { return std::get<std::function<uint32_t(const Widget *)>>(varColor); }
+        static       std::function<uint32_t(const Widget *)> &asFuncColor(      Widget::VarColor &varColor) { return std::get<std::function<uint32_t(const Widget *)>>(varColor); }
+
+        static uint32_t evalColor(const Widget::VarColor &varColor, const Widget *widgetPtr)
+        {
+            return std::visit(VarDispatcher
+            {
+                [](const uint32_t &arg)
+                {
+                    return arg;
+                },
+
+                [widgetPtr](const auto &arg)
+                {
+                    return arg ? arg(widgetPtr) : throw fflerror("invalid argument");
+                },
+            }, varColor);
         }
 
     private:

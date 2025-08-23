@@ -16,6 +16,8 @@
 //    |  | | |  |    v
 //    x--y | y--x
 
+// top-left corners of image and widget are aligned
+// widget uses original image width/height if widget size is given by {}, otherwise rescaling applied
 class ImageBoard: public Widget
 {
     private:
@@ -29,15 +31,16 @@ class ImageBoard: public Widget
         int  &m_rotate = m_xformPair.second;
 
     private:
-        uint32_t m_color;
+        Widget::VarColor m_color;
 
     public:
-        ImageBoard(Widget::VarDir,
+        ImageBoard(
+                Widget::VarDir,
                 Widget::VarOff,
                 Widget::VarOff,
 
-                Widget::VarSize,
-                Widget::VarSize,
+                Widget::VarSize, // {} means image width , otherwise rescale the image
+                Widget::VarSize, // {} means image height, otherwise rescale the image
 
                 std::function<SDL_Texture *(const ImageBoard *)>,
 
@@ -45,7 +48,7 @@ class ImageBoard: public Widget
                 bool = false,
                 int  = 0,
 
-                uint32_t = colorf::WHITE + colorf::A_SHF(0XFF),
+                Widget::VarColor = colorf::WHITE + colorf::A_SHF(0XFF),
 
                 Widget * = nullptr,
                 bool     = false);
@@ -54,9 +57,9 @@ class ImageBoard: public Widget
         void drawEx(int, int, int, int, int, int) const override;
 
     public:
-        void setColor(uint32_t color)
+        void setColor(Widget::VarColor color)
         {
-            m_color = color;
+            m_color = std::move(color);
         }
 
         void setLoadFunc(std::function<SDL_Texture *(const ImageBoard *)> func)

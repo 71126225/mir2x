@@ -19,7 +19,7 @@ ImageBoard::ImageBoard(
         bool argVFlip,
         int  argRotate,
 
-        uint32_t argColor,
+        Widget::VarColor argColor,
 
         Widget *argParent,
         bool    argAutoDelete)
@@ -40,7 +40,7 @@ ImageBoard::ImageBoard(
 
     , m_loadFunc(std::move(argLoadFunc))
     , m_xformPair(getHFlipRotatePair(argHFlip, argVFlip, argRotate))
-    , m_color(argColor)
+    , m_color(std::move(argColor))
 {
     if(!m_loadFunc){
         throw fflerror("invalid texture load function");
@@ -66,7 +66,7 @@ void ImageBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
         return;
     }
 
-    if(!colorf::A(m_color)){
+    if(!colorf::A(Widget::evalColor(m_color, this))){
         return;
     }
 
@@ -241,7 +241,7 @@ void ImageBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
         imgSrcX = texW - imgSrcX - imgSrcW;
     }
 
-    SDLDeviceHelper::EnableTextureModColor enableColor(texPtr, m_color);
+    SDLDeviceHelper::EnableTextureModColor enableColor(texPtr, Widget::evalColor(m_color, this));
     g_sdlDevice->drawTextureEx(
             texPtr,
 

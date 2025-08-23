@@ -1,20 +1,26 @@
 #pragma once
+#include <variant>
+#include "protocoldef.hpp"
 #include "mathf.hpp"
 #include "widget.hpp"
 
 class GfxCropBoard: public Widget
 {
     private:
-        const Widget * const m_gfxWidget;
+        using VarGfxWidget = std::variant <const Widget *,
+                             std::function<const Widget *(const Widget *)>>;
 
     private:
-        const Widget::VarOff m_brdCropX;
-        const Widget::VarOff m_brdCropY;
-        const Widget::VarOff m_brdCropW;
-        const Widget::VarOff m_brdCropH;
+        VarGfxWidget m_gfxWidgetGetter;
 
     private:
-        const std::array<int, 4> m_margin;
+        const Widget::VarOff m_gfxCropX;
+        const Widget::VarOff m_gfxCropY;
+        const Widget::VarOff m_gfxCropW;
+        const Widget::VarOff m_gfxCropH;
+
+    private:
+        const std::array<Widget::VarOff, 4> m_margin;
 
     public:
         GfxCropBoard(
@@ -22,14 +28,14 @@ class GfxCropBoard: public Widget
                 Widget::VarOff argX,
                 Widget::VarOff argY,
 
-                const Widget *argWidget,
+                VarGfxWidget argWidgetGetter,
 
-                Widget::VarOff argBrdCropX, // crop on gfx widget
-                Widget::VarOff argBrdCropY, // ...
-                Widget::VarOff argBrdCropW, // crop width, don't use Widget::VarSize, support over-cropping
-                Widget::VarOff argBrdCropH, // ...
+                Widget::VarOff argGfxCropX, // crop on gfx widget
+                Widget::VarOff argGfxCropY, // ...
+                Widget::VarOff argGfxCropW, // crop width, don't use Widget::VarSize, support over-cropping
+                Widget::VarOff argGfxCropH, // ...
 
-                std::array<int, 4> argMargin = {0, 0, 0, 0},
+                std::array<Widget::VarOff, 4> argMargin = {},
 
                 Widget *argParent     = nullptr,
                 bool    argAutoDelete = false)
@@ -48,30 +54,26 @@ class GfxCropBoard: public Widget
                   argAutoDelete,
               }
 
-            , m_gfxWidget([argWidget]{ fflassert(argWidget); return argWidget; }())
+            , m_gfxWidgetGetter(std::move(argWidgetGetter))
 
-            , m_brdCropX(std::move(argBrdCropX))
-            , m_brdCropY(std::move(argBrdCropY))
-            , m_brdCropW(std::move(argBrdCropW))
-            , m_brdCropH(std::move(argBrdCropH))
+            , m_gfxCropX(std::move(argGfxCropX))
+            , m_gfxCropY(std::move(argGfxCropY))
+            , m_gfxCropW(std::move(argGfxCropW))
+            , m_gfxCropH(std::move(argGfxCropH))
 
-            , m_margin(argMargin)
+            , m_margin(std::move(argMargin))
         {
             // respect blank space by over-cropping
-            // if cropped size bigger than gfx size, we fill with blank
+            // if cropped size bigger than gfx size, it's fill with blank
 
             setSize([this](const Widget *)
             {
-                const auto cropW = Widget::evalOff(m_brdCropW, this);
-                fflassert(cropW >= 0);
-                return cropW + m_margin[2] + m_margin[3];
+                return gfxCropW() + margin(2) + margin(3);
             },
 
             [this](const Widget *)
             {
-                const auto cropH = Widget::evalOff(m_brdCropH, this);
-                fflassert(cropH >= 0);
-                return cropH + m_margin[0] + m_margin[1];
+                return gfxCropH() + margin(0) + margin(1);
             });
         }
 
@@ -82,18 +84,24 @@ class GfxCropBoard: public Widget
                 return;
             }
 
-            const int brdCropXOrig = Widget::evalOff(m_brdCropX, this);
-            const int brdCropYOrig = Widget::evalOff(m_brdCropY, this);
+            const auto gfxPtr = gfxWidget();
+            if(!gfxPtr){
+                return;
+            }
+
+            if(!gfxWidget()){
+                return;
+            }
+
+            const int brdCropXOrig = gfxCropX();
+            const int brdCropYOrig = gfxCropY();
 
             int brdCropX = brdCropXOrig;
             int brdCropY = brdCropYOrig;
-            int brdCropW = Widget::evalOff(m_brdCropW, this);
-            int brdCropH = Widget::evalOff(m_brdCropH, this);
+            int brdCropW = gfxCropW();
+            int brdCropH = gfxCropH();
 
-            fflassert(brdCropW >= 0);
-            fflassert(brdCropH >= 0);
-
-            if(!mathf::rectangleOverlapRegion<int>(0, 0, m_gfxWidget->w(), m_gfxWidget->h(), brdCropX, brdCropY, brdCropW, brdCropH)){
+            if(!mathf::rectangleOverlapRegion<int>(0, 0, gfxPtr->w(), gfxPtr->h(), brdCropX, brdCropY, brdCropW, brdCropH)){
                 return;
             }
 
@@ -112,14 +120,44 @@ class GfxCropBoard: public Widget
                         w(),
                         h(),
 
-                        m_margin[2] + brdCropX - brdCropXOrig,
-                        m_margin[0] + brdCropY - brdCropYOrig,
+                        margin(2) + brdCropX - brdCropXOrig,
+                        margin(0) + brdCropY - brdCropYOrig,
 
                         brdCropW,
                         brdCropH)){
                 return;
             }
 
-            m_gfxWidget->drawEx(drawDstX, drawDstY, drawSrcX + brdCropX, drawSrcY + brdCropY, drawSrcW, drawSrcH);
+            gfxPtr->drawEx(drawDstX, drawDstY, drawSrcX + brdCropX, drawSrcY + brdCropY, drawSrcW, drawSrcH);
+        }
+
+    public:
+        const Widget *gfxWidget() const
+        {
+            return std::visit(VarDispatcher
+            {
+                [](const Widget *arg) -> const Widget *
+                {
+                    return arg;
+                },
+
+                [this](const std::function<const Widget *(const Widget *)> &arg) -> const Widget *
+                {
+                    return arg ? arg(this) : nullptr;
+                }
+            },
+            m_gfxWidgetGetter);
+        }
+
+    public:
+        int gfxCropX() const { return                  Widget::evalOff(m_gfxCropX, this) ; }
+        int gfxCropY() const { return                  Widget::evalOff(m_gfxCropY, this) ; }
+        int gfxCropW() const { return std::max<int>(0, Widget::evalOff(m_gfxCropW, this)); }
+        int gfxCropH() const { return std::max<int>(0, Widget::evalOff(m_gfxCropH, this)); }
+
+    public:
+        int margin(int index) const
+        {
+            return std::max<int>(0, Widget::evalOff(m_margin[((index % 4) + 4) % 4], this));
         }
 };
