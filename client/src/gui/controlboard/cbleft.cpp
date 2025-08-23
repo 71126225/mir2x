@@ -140,7 +140,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
           [this](const Widget *) -> int
           {
               if(auto myHero = m_processRun->getMyHero()){
-                  return to_dround(m_mpFull.h() * myHero->getHealthRatio().at(0));
+                  return to_dround(m_mpFull.h() * myHero->getHealthRatio().at(1));
               }
               return 0;
           },
