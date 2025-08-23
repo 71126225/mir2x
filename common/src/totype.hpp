@@ -45,6 +45,11 @@ int to_dround(std::floating_point auto x)
     return check_cast<int>(std::lround(x));
 }
 
+long to_ldround(std::floating_point auto x)
+{
+    return std::lround(x);
+}
+
 template<typename T> T as_type(const void *buf, size_t bufSize = sizeof(T))
 {
     static_assert(std::is_trivially_copyable_v<T>);

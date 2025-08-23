@@ -226,16 +226,16 @@ void ImageBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
 
     const auto [texW, texH] = SDLDeviceHelper::getTextureSize(texPtr);
 
-    const auto  widthRatio = to_f(texW) / ((m_rotate % 2 == 0) ? w() : h());
-    const auto heightRatio = to_f(texH) / ((m_rotate % 2 == 0) ? h() : w());
+    const auto  widthRatio = to_df(texW) / ((m_rotate % 2 == 0) ? w() : h());
+    const auto heightRatio = to_df(texH) / ((m_rotate % 2 == 0) ? h() : w());
 
     // imgSrcX
     // size and position cropped from original image, no resize, well defined
 
-    /**/  int imgSrcX = std::lround( widthRatio * drawSrcX);
-    const int imgSrcY = std::lround(heightRatio * drawSrcY);
-    const int imgSrcW = std::lround( widthRatio * drawSrcW);
-    const int imgSrcH = std::lround(heightRatio * drawSrcH);
+    /**/  int imgSrcX = to_dround( widthRatio * drawSrcX);
+    const int imgSrcY = to_dround(heightRatio * drawSrcY);
+    const int imgSrcW = to_dround( widthRatio * drawSrcW);
+    const int imgSrcH = to_dround(heightRatio * drawSrcH);
 
     if(m_hflip){
         imgSrcX = texW - imgSrcX - imgSrcW;
