@@ -22,13 +22,37 @@ TTF_Font *FontexDB::findTTF(uint16_t ttfIndex)
 
 std::optional<std::tuple<FontexElement, size_t>> FontexDB::loadResource(uint64_t key)
 {
-    const auto ttfIndex  = to_u16((key & 0X00FFFF0000000000) >> 40);
+    const auto fontIndex = to_u8 ((key & 0X00FF000000000000) >> 48);
+    const auto fontSize  = to_u8 ((key & 0X0000FF0000000000) >> 40);
     const auto fontStyle = to_u8 ((key & 0X000000FF00000000) >> 32);
     const auto utf8Code  = to_u32((key & 0X00000000FFFFFFFF) >>  0);
 
-    auto ttfPtr = findTTF(ttfIndex);
+    char utf8String[8];
+    std::memset(utf8String, 0, sizeof(utf8String));
+    std::memcpy(utf8String, &utf8Code, sizeof(utf8Code));
+
+    if(auto texPtr = createTexture(fontIndex, fontSize, fontStyle, utf8String)){
+        return std::make_tuple(FontexElement
+        {
+            .texture = texPtr,
+        }, 1);
+    }
+    return std::nullopt;
+}
+
+void FontexDB::freeResource(FontexElement &element)
+{
+    if(element.texture){
+        SDL_DestroyTexture(element.texture);
+        element.texture = nullptr;
+    }
+}
+
+SDL_Texture * FontexDB::createTexture(uint8_t fontIndex, uint8_t fontSize, uint8_t fontStyle, const char *utf8String)
+{
+    auto ttfPtr = findTTF((to_u16(fontIndex) << 8) | fontSize);
     if(!ttfPtr){
-        return {};
+        return nullptr;
     }
 
     TTF_SetFontKerning(ttfPtr, 0);
@@ -53,10 +77,6 @@ std::optional<std::tuple<FontexElement, size_t>> FontexDB::loadResource(uint64_t
         TTF_SetFontStyle(ttfPtr, sdlTTFStyle);
     }
 
-    char utf8String[8];
-    std::memset(utf8String, 0, sizeof(utf8String));
-    std::memcpy(utf8String, &utf8Code, sizeof(utf8Code));
-
     SDL_Surface *surfPtr = nullptr;
     if(fontStyle & FONTSTYLE_SOLID){
         surfPtr = TTF_RenderUTF8_Solid(ttfPtr, utf8String, {0XFF, 0XFF, 0XFF, 0XFF});
@@ -69,25 +89,18 @@ std::optional<std::tuple<FontexElement, size_t>> FontexDB::loadResource(uint64_t
     }
 
     if(!surfPtr){
-        return {};
+        return nullptr;
     }
 
     auto texPtr = g_sdlDevice->createTextureFromSurface(surfPtr);
     SDL_FreeSurface(surfPtr);
 
-    if(texPtr){
-        return std::make_tuple(FontexElement
-        {
-            .texture = texPtr,
-        }, 1);
-    }
-    return {};
+    return texPtr;
 }
 
-void FontexDB::freeResource(FontexElement &element)
+void FontexDB::freeTexture(SDL_Texture *texPtr)
 {
-    if(element.texture){
-        SDL_DestroyTexture(element.texture);
-        element.texture = nullptr;
+    if(texPtr){
+        SDL_DestroyTexture(texPtr);
     }
 }

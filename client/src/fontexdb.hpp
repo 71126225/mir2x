@@ -120,4 +120,8 @@ class FontexDB: public innDB<uint64_t, FontexElement>
 
     public:
         void freeResource(FontexElement &) override;
+
+    public:
+        SDL_Texture * createTexture(uint8_t, uint8_t, uint8_t, const char *);
+        void            freeTexture(SDL_Texture *);
 };
