@@ -1,11 +1,8 @@
-#include "log.hpp"
 #include "totype.hpp"
 #include "strf.hpp"
 #include "xmlf.hpp"
 #include "xmltypeset.hpp"
 #include "labelboard.hpp"
-
-extern Log *g_log;
 
 LabelBoard::LabelBoard(
         Widget::VarDir argDir,
