@@ -41,7 +41,7 @@ TexSliderBar::TexSliderBar(
           {},
           {},
 
-          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
+          [](const Widget *){ return g_progUseDB->retrieve(0X00000460); },
 
           false,
           false,
@@ -57,7 +57,7 @@ TexSliderBar::TexSliderBar(
           {},
           {},
 
-          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000470); },
+          [](const Widget *){ return g_progUseDB->retrieve(0X00000470); },
 
           false,
           false,

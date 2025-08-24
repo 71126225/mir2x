@@ -96,7 +96,7 @@ class ModalStringBoardImpl: public Widget
                   {},
                   {},
 
-                  [this](const ImageBoard *) -> SDL_Texture *
+                  [this](const Widget *) -> SDL_Texture *
                   {
                       return g_progUseDB->retrieve(m_texID);
                   }

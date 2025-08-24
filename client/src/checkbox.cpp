@@ -219,7 +219,7 @@ void CheckBox::setter(bool value)
     }
 }
 
-SDL_Texture *CheckBox::loadFunc(const ImageBoard *)
+SDL_Texture *CheckBox::loadFunc(const Widget *)
 {
     return g_progUseDB->retrieve(0X00000480);
 }

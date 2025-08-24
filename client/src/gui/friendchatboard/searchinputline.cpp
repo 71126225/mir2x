@@ -38,7 +38,7 @@ SearchInputLine::SearchInputLine(Widget::VarDir argDir,
           0,
           {},
           {},
-          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
+          [](const Widget *){ return g_progUseDB->retrieve(0X00000460); },
       }
 
     , inputbg
@@ -70,7 +70,7 @@ SearchInputLine::SearchInputLine(Widget::VarDir argDir,
           std::min<int>(SearchInputLine::ICON_WIDTH, SearchInputLine::HEIGHT - 3 * 2),
           std::min<int>(SearchInputLine::ICON_WIDTH, SearchInputLine::HEIGHT - 3 * 2),
 
-          [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
+          [](const Widget *) { return g_progUseDB->retrieve(0X00001200); },
 
           false,
           false,

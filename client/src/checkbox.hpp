@@ -57,5 +57,5 @@ class CheckBox: public Widget
         void setter(bool);
 
     private:
-        static SDL_Texture *loadFunc(const ImageBoard *);
+        static SDL_Texture *loadFunc(const Widget *);
 };

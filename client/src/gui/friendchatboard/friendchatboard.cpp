@@ -40,7 +40,7 @@ FriendChatBoard::FriendChatBoard(Widget::VarOff argX, Widget::VarOff argY, Proce
           0,
           {},
           {},
-          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000800); },
+          [](const Widget *){ return g_progUseDB->retrieve(0X00000800); },
       }
 
     , m_frameCropDup
@@ -69,7 +69,7 @@ FriendChatBoard::FriendChatBoard(Widget::VarOff argX, Widget::VarOff argY, Proce
           0,
           {},
           {},
-          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000810); },
+          [](const Widget *){ return g_progUseDB->retrieve(0X00000810); },
 
           false,
           false,

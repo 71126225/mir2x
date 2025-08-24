@@ -21,7 +21,7 @@
 class ImageBoard: public Widget
 {
     private:
-        std::function<SDL_Texture *(const ImageBoard *)> m_loadFunc;
+        std::function<SDL_Texture *(const Widget *)> m_loadFunc;
 
     private:
         std::pair<bool, int> m_xformPair;
@@ -42,7 +42,7 @@ class ImageBoard: public Widget
                 Widget::VarSize, // {} means image width , otherwise rescale the image
                 Widget::VarSize, // {} means image height, otherwise rescale the image
 
-                std::function<SDL_Texture *(const ImageBoard *)>,
+                std::function<SDL_Texture *(const Widget *)>,
 
                 bool = false,
                 bool = false,
@@ -62,7 +62,7 @@ class ImageBoard: public Widget
             m_color = std::move(color);
         }
 
-        void setLoadFunc(std::function<SDL_Texture *(const ImageBoard *)> func)
+        void setLoadFunc(std::function<SDL_Texture *(const Widget *)> func)
         {
             m_loadFunc = std::move(func);
         }

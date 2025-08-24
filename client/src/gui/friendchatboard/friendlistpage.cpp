@@ -59,7 +59,7 @@ void FriendListPage::append(const SDChatPeer &peer, std::function<void(FriendIte
         SDChatPeerID(CP_PLAYER, peer.id),
         to_u8cstr(peer.name),
 
-        [peer](const ImageBoard *)
+        [peer](const Widget *)
         {
             if     (peer.group()                  ) return g_progUseDB->retrieve(0X00001300);
             else if(peer.id == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);

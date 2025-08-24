@@ -31,7 +31,7 @@ AcutionBoard::AcutionBoard(ProcessRun *argProc, Widget *argParent, bool argAutoD
           {},
           {},
 
-          [](const ImageBoard *) -> SDL_Texture *
+          [](const Widget *) -> SDL_Texture *
           {
               return g_progUseDB->retrieve(0X00001400);
           },

@@ -2,6 +2,7 @@
 #include "sdldevice.hpp"
 
 extern SDLDevice *g_sdlDevice;
+
 TTF_Font *FontexDB::findTTF(uint16_t ttfIndex)
 {
     if(auto p = m_ttfCache.find(ttfIndex); p != m_ttfCache.end()){
@@ -22,37 +23,13 @@ TTF_Font *FontexDB::findTTF(uint16_t ttfIndex)
 
 std::optional<std::tuple<FontexElement, size_t>> FontexDB::loadResource(uint64_t key)
 {
-    const auto fontIndex = to_u8 ((key & 0X00FF000000000000) >> 48);
-    const auto fontSize  = to_u8 ((key & 0X0000FF0000000000) >> 40);
-    const auto fontStyle = to_u8 ((key & 0X000000FF00000000) >> 32);
-    const auto utf8Code  = to_u32((key & 0X00000000FFFFFFFF) >>  0);
+    const auto ttfIndex   = to_u16((key & 0X00FFFF0000000000) >> 40);
+    const auto fontStyle  = to_u8 ((key & 0X000000FF00000000) >> 32);
+    const auto textEncode = to_u32((key & 0X00000000FFFFFFFF) >>  0);
 
-    char utf8String[8];
-    std::memset(utf8String, 0, sizeof(utf8String));
-    std::memcpy(utf8String, &utf8Code, sizeof(utf8Code));
-
-    if(auto texPtr = createTexture(fontIndex, fontSize, fontStyle, utf8String)){
-        return std::make_tuple(FontexElement
-        {
-            .texture = texPtr,
-        }, 1);
-    }
-    return std::nullopt;
-}
-
-void FontexDB::freeResource(FontexElement &element)
-{
-    if(element.texture){
-        SDL_DestroyTexture(element.texture);
-        element.texture = nullptr;
-    }
-}
-
-SDL_Texture * FontexDB::createTexture(uint8_t fontIndex, uint8_t fontSize, uint8_t fontStyle, const char *utf8String)
-{
-    auto ttfPtr = findTTF((to_u16(fontIndex) << 8) | fontSize);
+    auto ttfPtr = findTTF(ttfIndex);
     if(!ttfPtr){
-        return nullptr;
+        return std::nullopt;
     }
 
     TTF_SetFontKerning(ttfPtr, 0);
@@ -77,6 +54,23 @@ SDL_Texture * FontexDB::createTexture(uint8_t fontIndex, uint8_t fontSize, uint8
         TTF_SetFontStyle(ttfPtr, sdlTTFStyle);
     }
 
+    char textBuf[8];
+    const char * utf8String;
+
+    if((textEncode & 0XFF000000) == 0XFF000000){
+        if(auto p = m_encode2LongText.find(textEncode); p != m_encode2LongText.end()){
+            utf8String = p->second;
+        }
+        else{
+            return std::nullopt;
+        }
+    }
+    else{
+        utf8String = textBuf;
+        std::memset(textBuf, 0, sizeof(textBuf));
+        std::memcpy(textBuf, &textEncode, sizeof(textEncode));
+    }
+
     SDL_Surface *surfPtr = nullptr;
     if(fontStyle & FONTSTYLE_SOLID){
         surfPtr = TTF_RenderUTF8_Solid(ttfPtr, utf8String, {0XFF, 0XFF, 0XFF, 0XFF});
@@ -89,18 +83,36 @@ SDL_Texture * FontexDB::createTexture(uint8_t fontIndex, uint8_t fontSize, uint8
     }
 
     if(!surfPtr){
-        return nullptr;
+        return std::nullopt;
     }
 
     auto texPtr = g_sdlDevice->createTextureFromSurface(surfPtr);
     SDL_FreeSurface(surfPtr);
 
-    return texPtr;
+    if(texPtr){
+        const auto [texW, texH] = SDLDeviceHelper::getTextureSize(texPtr);
+        return std::make_tuple(FontexElement
+        {
+            .textEncode = textEncode,
+            .texture = texPtr,
+        },
+
+        texW * texH + 50);
+    }
+    return std::nullopt;
 }
 
-void FontexDB::freeTexture(SDL_Texture *texPtr)
+void FontexDB::freeResource(FontexElement &element)
 {
-    if(texPtr){
-        SDL_DestroyTexture(texPtr);
+    if(element.texture){
+        SDL_DestroyTexture(element.texture);
+        element.texture = nullptr;
+
+        if((element.textEncode & 0XFF000000) == 0XFF000000){
+            if(auto p = m_encode2LongText.find(element.textEncode); p != m_encode2LongText.end()){
+                m_longText2Encode.erase(p->second);
+                m_encode2LongText.erase(p);
+            }
+        }
     }
 }

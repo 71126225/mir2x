@@ -72,7 +72,7 @@ SearchAutoCompletionItem::SearchAutoCompletionItem(Widget::VarDir argDir,
           std::min<int>(SearchAutoCompletionItem::ICON_WIDTH, SearchAutoCompletionItem::HEIGHT - 3 * 2),
           std::min<int>(SearchAutoCompletionItem::ICON_WIDTH, SearchAutoCompletionItem::HEIGHT - 3 * 2),
 
-          [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
+          [](const Widget *) { return g_progUseDB->retrieve(0X00001200); },
 
           false,
           false,

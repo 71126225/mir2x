@@ -1450,7 +1450,7 @@ void ControlBoard::drawRatioBar(int x, int y, double r) const
         {},
         {},
 
-        [](const ImageBoard *)
+        [](const Widget *)
         {
             return g_progUseDB->retrieve(0X000000A0);
         },

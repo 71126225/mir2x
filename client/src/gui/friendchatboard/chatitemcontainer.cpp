@@ -243,7 +243,7 @@ void ChatItemContainer::append(const SDChatMessage &sdCM, std::function<void(con
         to_u8cstr(cerealf::deserialize<std::string>(sdCM.message)),
         sdCM.refer.has_value() ? u8"<layout><par>...</par></layout>" : nullptr,
 
-        [](const ImageBoard *)
+        [](const Widget *)
         {
             return g_progUseDB->retrieve(0X010007CF);
         },
@@ -294,7 +294,7 @@ void ChatItemContainer::append(const SDChatMessage &sdCM, std::function<void(con
             const auto gender = peer->player() ? peer->player()->gender : false;
 
             chatItem->name.setText(to_u8cstr(peer->name));
-            chatItem->avatar.setLoadFunc([from, job, gender](const ImageBoard *)
+            chatItem->avatar.setLoadFunc([from, job, gender](const Widget *)
             {
                 if     (from == SDChatPeerID(CP_SPECIAL, SYS_CHATDBID_SYSTEM)) return g_progUseDB->retrieve(0X00001100);
                 else if(from == SDChatPeerID(CP_SPECIAL, SYS_CHATDBID_GROUP )) return g_progUseDB->retrieve(0X00001300);

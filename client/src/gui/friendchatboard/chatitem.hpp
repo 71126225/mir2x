@@ -101,7 +101,7 @@ struct ChatItem: public Widget
             const char8_t *,
             const char8_t *,
 
-            std::function<SDL_Texture *(const ImageBoard *)>,
+            std::function<SDL_Texture *(const Widget *)>,
 
             bool,
             bool,

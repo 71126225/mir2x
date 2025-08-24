@@ -24,8 +24,18 @@ enum FontStyle: uint8_t
 
 struct FontexElement
 {
+    uint32_t textEncode = 0;
     SDL_Texture *texture = nullptr;
 };
+
+// key & 0X00FF000000000000) >> 48: font index --+
+// key & 0X0000FF0000000000) >> 40: font size  --+---> combined as ttf index
+// key & 0X000000FF00000000) >> 32: font style
+// key & 0X00000000FFFFFFFF) >>  0: utf8 code or long text encode
+
+// use lower 4 bytes as utf8 code or long text encode
+// when it's: 0XFFXXXXXX: long text encode
+//            0XXXXXXXXX: ottherwise, it's utf8 code with length <= 4
 
 class FontexDB: public innDB<uint64_t, FontexElement>
 {
@@ -40,6 +50,11 @@ class FontexDB: public innDB<uint64_t, FontexElement>
 
     private:
         std::unordered_map<uint8_t, std::vector<uint8_t>> m_fontDataCache;
+
+    private:
+        uint32_t m_longTextCount = 0;
+        std::unordered_map<std::string, uint32_t > m_longText2Encode;
+        std::unordered_map<uint32_t, const char *> m_encode2LongText;
 
     public:
         FontexDB(size_t resMax)
@@ -91,9 +106,9 @@ class FontexDB: public innDB<uint64_t, FontexElement>
             return nullptr;
         }
 
-        SDL_Texture *retrieve(uint8_t fontIndex, uint8_t fontSize, uint8_t fontStyle, uint32_t utf8Code)
+        SDL_Texture *retrieve(uint8_t fontIndex, uint8_t fontSize, uint8_t fontStyle, const char *utf8String)
         {
-            return retrieve(utf8f::buildU64Key(fontIndex, fontSize, fontStyle, utf8Code));
+            return retrieve(utf8f::buildU64Key(fontIndex, fontSize, fontStyle, textEncode(utf8String)));
         }
 
     public:
@@ -121,7 +136,32 @@ class FontexDB: public innDB<uint64_t, FontexElement>
     public:
         void freeResource(FontexElement &) override;
 
-    public:
-        SDL_Texture * createTexture(uint8_t, uint8_t, uint8_t, const char *);
-        void            freeTexture(SDL_Texture *);
+    private:
+        uint32_t textEncode(const char *utf8String)
+        {
+            fflassert(utf8String);
+
+            if(const auto size = std::strlen(utf8String); size <= 4){
+                uint32_t utf8Code = 0;
+                std::memcpy(&utf8Code, utf8String, size);
+                return utf8Code;
+            }
+
+            if(auto p = m_longText2Encode.find(utf8String); p != m_longText2Encode.end()){
+                return p->second;
+            }
+
+            const auto currIndex = ++m_longTextCount;
+            if(currIndex > 0X00FFFFFF){
+                throw fflerror("long text count exceeds limit: %llu", to_llu(currIndex));
+            }
+
+            const auto insertedString = m_longText2Encode.try_emplace(utf8String, currIndex);
+            const auto insertedEncode = m_encode2LongText.try_emplace(0XFF000000 | currIndex, insertedString.first->first.c_str());
+
+            fflassert(insertedString.second);
+            fflassert(insertedEncode.second);
+
+            return insertedEncode.first->first;
+        }
 };

@@ -37,7 +37,7 @@ ResizableFrameBoard::ResizableFrameBoard(
           0,
           {},
           {},
-          [](const ImageBoard *){ return g_progUseDB->retrieve(m_frameTexID); },
+          [](const Widget *){ return g_progUseDB->retrieve(m_frameTexID); },
       }
 
     , m_frameCropDup

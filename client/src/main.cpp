@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         g_magicDB         = new PNGTexOffDB(1024);
         g_standNPCDB      = new PNGTexOffDB(1024);
         g_selectCharDB    = new PNGTexOffDB(512);
-        g_fontexDB        = new FontexDB(1024);
+        g_fontexDB        = new FontexDB(1024L * 1024 * 512);
         g_mapBinDB        = new MapBinDB();
         g_emojiDB         = new EmojiDB();
         g_bgmDB           = new BGMusicDB(5);

@@ -13,7 +13,7 @@ FriendItem::FriendItem(
         const SDChatPeerID &argCPID,
 
         const char8_t *argNameStr,
-        std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
+        std::function<SDL_Texture *(const Widget *)> argLoadImageFunc,
 
         std::function<void(FriendItem *)> argOnClick,
         std::pair<Widget *, bool> argFuncWidget,

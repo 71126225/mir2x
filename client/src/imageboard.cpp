@@ -13,7 +13,7 @@ ImageBoard::ImageBoard(
         Widget::VarSize argW,
         Widget::VarSize argH,
 
-        std::function<SDL_Texture *(const ImageBoard *)> argLoadFunc,
+        std::function<SDL_Texture *(const Widget *)> argLoadFunc,
 
         bool argHFlip,
         bool argVFlip,

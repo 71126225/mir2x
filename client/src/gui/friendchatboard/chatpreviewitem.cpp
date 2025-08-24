@@ -46,7 +46,7 @@ ChatPreviewItem::ChatPreviewItem(
           ChatPreviewItem::AVATAR_WIDTH,
           ChatPreviewItem::HEIGHT - ChatPreviewItem::ITEM_MARGIN * 2,
 
-          [this](const ImageBoard *) -> SDL_Texture *
+          [this](const Widget *) -> SDL_Texture *
           {
               return g_progUseDB->retrieve(0X010007CF);
           },
@@ -156,7 +156,7 @@ ChatPreviewItem::ChatPreviewItem(
         }
 
         this->name.setText(to_u8cstr(peer->name));
-        this->avatar.setLoadFunc([dbid = peer->id, group = peer->group(), gender = peer->player() ? peer->player()->gender : false, job = peer->player() ? peer->player()->job : 0](const ImageBoard *)
+        this->avatar.setLoadFunc([dbid = peer->id, group = peer->group(), gender = peer->player() ? peer->player()->gender : false, job = peer->player() ? peer->player()->job : 0](const Widget *)
         {
             if     (group                      ) return g_progUseDB->retrieve(0X00001300);
             else if(dbid == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);

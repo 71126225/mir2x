@@ -22,7 +22,7 @@ ChatItem::ChatItem(
         const char8_t *argMessageStr,
         const char8_t *argMessageRefStr,
 
-        std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
+        std::function<SDL_Texture *(const Widget *)> argLoadImageFunc,
 
         bool argShowName,
         bool argAvatarLeft,

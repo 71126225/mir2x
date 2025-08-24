@@ -42,9 +42,9 @@ RadioSelector::RadioSelector(Widget::VarDir argDir,
     , m_valSetter(std::move(argValSetter))
     , m_valOnChange(std::move(argValOnChange))
 
-    , m_imgOff  {DIR_UPLEFT, 0, 0, 16, 16, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000370); }, false, false, 0, colorf::WHITE + colorf::A_SHF(0XFF)}
-    , m_imgOn   {DIR_UPLEFT, 0, 0, 16, 16, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000370); }, false, false, 0, colorf::RED   + colorf::A_SHF(0XFF)}
-    , m_imgDown {DIR_UPLEFT, 0, 0, 16, 16, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000371); }, false, false, 0, colorf::WHITE + colorf::A_SHF(0XFF)}
+    , m_imgOff  {DIR_UPLEFT, 0, 0, 16, 16, [](const Widget *){ return g_progUseDB->retrieve(0X00000370); }, false, false, 0, colorf::WHITE + colorf::A_SHF(0XFF)}
+    , m_imgOn   {DIR_UPLEFT, 0, 0, 16, 16, [](const Widget *){ return g_progUseDB->retrieve(0X00000370); }, false, false, 0, colorf::RED   + colorf::A_SHF(0XFF)}
+    , m_imgDown {DIR_UPLEFT, 0, 0, 16, 16, [](const Widget *){ return g_progUseDB->retrieve(0X00000371); }, false, false, 0, colorf::WHITE + colorf::A_SHF(0XFF)}
 
 {
     for(auto [widget, autoDelete]: argWidgetList){

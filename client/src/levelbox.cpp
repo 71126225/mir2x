@@ -135,7 +135,7 @@ void LevelBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH
                       {},
                       {},
 
-                      [](const ImageBoard *)
+                      [](const Widget *)
                       {
                           return g_sdlDevice->getCover(8, 360);
                       },
