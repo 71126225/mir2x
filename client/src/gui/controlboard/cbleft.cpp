@@ -13,13 +13,6 @@
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-static uint32_t ratio2Color(double ratio)
-{
-    const auto r = mathf::bound<double>(ratio, 0, 1);
-    const auto red = static_cast<uint8_t>(to_dround(255 * r));
-    return colorf::RGBA(red, 255 - red, 0, 255);
-}
-
 CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
     : Widget
       {
@@ -171,18 +164,6 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
           {
               return g_progUseDB->retrieve(0X000000A0);
           },
-
-          false,
-          false,
-          0,
-
-          [this](const Widget *) -> uint32_t
-          {
-              if(auto myHero = m_processRun->getMyHero()){
-                  return ratio2Color(myHero->getLevelRatio());
-              }
-              return 0;
-          },
       }
 
     , m_levelBar
@@ -226,18 +207,6 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
           [](const Widget *)
           {
               return g_progUseDB->retrieve(0X000000A0);
-          },
-
-          false,
-          false,
-          0,
-
-          [this](const Widget *) -> uint32_t
-          {
-              if(auto myHero = m_processRun->getMyHero()){
-                  return ratio2Color(myHero->getInventoryRatio());
-              }
-              return 0;
           },
       }
 
