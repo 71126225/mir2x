@@ -21,6 +21,11 @@
 class ImageBoard: public Widget
 {
     private:
+        Widget::VarSize  m_varW;
+        Widget::VarSize  m_varH;
+        Widget::VarColor m_varColor;
+
+    private:
         std::function<SDL_Texture *(const Widget *)> m_loadFunc;
 
     private:
@@ -29,9 +34,6 @@ class ImageBoard: public Widget
     private:
         bool &m_hflip  = m_xformPair.first;
         int  &m_rotate = m_xformPair.second;
-
-    private:
-        Widget::VarColor m_color;
 
     public:
         ImageBoard(
@@ -59,7 +61,7 @@ class ImageBoard: public Widget
     public:
         void setColor(Widget::VarColor color)
         {
-            m_color = std::move(color);
+            m_varColor = std::move(color);
         }
 
         void setLoadFunc(std::function<SDL_Texture *(const Widget *)> func)

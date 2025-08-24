@@ -156,12 +156,13 @@ class FontexDB: public innDB<uint64_t, FontexElement>
                 throw fflerror("long text count exceeds limit: %llu", to_llu(currIndex));
             }
 
-            const auto insertedString = m_longText2Encode.try_emplace(utf8String, currIndex);
-            const auto insertedEncode = m_encode2LongText.try_emplace(0XFF000000 | currIndex, insertedString.first->first.c_str());
+            const auto encodedIndex = currIndex | UINT32_C(0XFF000000);
+            const auto insertedString = m_longText2Encode.try_emplace(utf8String, encodedIndex);
+            const auto insertedEncode = m_encode2LongText.try_emplace(encodedIndex, insertedString.first->first.c_str());
 
             fflassert(insertedString.second);
             fflassert(insertedEncode.second);
 
-            return insertedEncode.first->first;
+            return encodedIndex;
         }
 };

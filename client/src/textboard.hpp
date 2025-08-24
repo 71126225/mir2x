@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <cstdint>
 #include <SDL2/SDL.h>
 
@@ -10,6 +9,14 @@
 
 class TextBoard: public Widget
 {
+    private:
+        uint8_t m_font;
+        uint8_t m_fontSize;
+        uint8_t m_fontStyle;
+
+    private:
+        std::function<std::string(const Widget *)> m_textFunc;
+
     private:
         ImageBoard m_image;
 
@@ -31,25 +38,39 @@ class TextBoard: public Widget
                 bool     = false);
 
     public:
-        void setFont(uint8_t);
-        void setFontSize(uint8_t);
-        void setFontStyle(uint8_t);
-        void setFontColor(uint32_t);
-
-    public:
-        void clear()
+        void setFont(uint8_t argFont)
         {
-            m_tpset.clear();
+            m_font = argFont;
         }
 
+        void setFontSize(uint8_t argFontSize)
+        {
+            m_fontSize = argFontSize;
+        }
+
+        void setFontStyle(uint8_t argFontStyle)
+        {
+            m_fontStyle = argFontStyle;
+        }
+
+        void setFontColor(Widget::VarColor argColor)
+        {
+            m_image.setColor(std::move(argColor));
+        }
+
+        void setTextFunc(std::function<std::string(const Widget *)> argTextFunc)
+        {
+            m_textFunc = std::move(argTextFunc);
+        }
+
+    public:
         bool empty() const
         {
-            return m_tpset.empty();
+            return m_textFunc ? m_textFunc(this).empty() : true;
         }
 
-    public:
-        void drawEx(int argDstX, int argDstY, int argSrcX, int argSrcY, int argSrcW, int argSrcH) const override
+        void drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const override
         {
-            m_tpset.drawEx(argDstX, argDstY, argSrcX, argSrcY, argSrcW, argSrcH);
+            return m_image.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
         }
 };

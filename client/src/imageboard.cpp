@@ -38,23 +38,35 @@ ImageBoard::ImageBoard(
           argAutoDelete,
       }
 
+    , m_varW(std::move(argW))
+    , m_varH(std::move(argH))
+    , m_varColor(std::move(argColor))
     , m_loadFunc(std::move(argLoadFunc))
     , m_xformPair(getHFlipRotatePair(argHFlip, argVFlip, argRotate))
-    , m_color(std::move(argColor))
 {
-    if(!m_loadFunc){
-        throw fflerror("invalid texture load function");
+
+    int texW = 0;
+    int texH = 0;
+
+    if(auto texPtr = m_loadFunc ? m_loadFunc(this) : nullptr){
+        std::tie(texW, texH) = SDLDeviceHelper::getTextureSize(texPtr);
     }
 
-    auto texPtr = m_loadFunc(this);
-    if(!texPtr){
-        throw fflerror("load texture failed");
-    }
+    const auto varTexW = Widget::hasSize(m_varW) ? m_varW : Widget::VarSize([this](const Widget *)
+    {
+        if(auto texPtr = m_loadFunc ? m_loadFunc(this) : nullptr){
+            return SDLDeviceHelper::getTextureWidth(texPtr);
+        }
+        return 0;
+    });
 
-    const auto [texW, texH] = SDLDeviceHelper::getTextureSize(texPtr);
-
-    const auto varTexW = Widget::hasSize(argW) ? argW : Widget::VarSize(texW);
-    const auto varTexH = Widget::hasSize(argH) ? argH : Widget::VarSize(texH);
+    const auto varTexH = Widget::hasSize(m_varH) ? m_varH : Widget::VarSize([this](const Widget *)
+    {
+        if(auto texPtr = m_loadFunc ? m_loadFunc(this) : nullptr){
+            return SDLDeviceHelper::getTextureHeight(texPtr);
+        }
+        return 0;
+    });
 
     setW((m_rotate % 2 == 0) ? varTexW : varTexH);
     setH((m_rotate % 2 == 0) ? varTexH : varTexW);
@@ -62,11 +74,15 @@ ImageBoard::ImageBoard(
 
 void ImageBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
-    if(!(w() > 0 && h() > 0)){
-        return;
+    if(w() <= 0){
+        return ;
     }
 
-    if(!colorf::A(Widget::evalColor(m_color, this))){
+    if(h() <= 0){
+        return ;
+    }
+
+    if(!colorf::A(Widget::evalColor(m_varColor, this))){
         return;
     }
 
@@ -241,7 +257,7 @@ void ImageBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
         imgSrcX = texW - imgSrcX - imgSrcW;
     }
 
-    SDLDeviceHelper::EnableTextureModColor enableColor(texPtr, Widget::evalColor(m_color, this));
+    SDLDeviceHelper::EnableTextureModColor enableColor(texPtr, Widget::evalColor(m_varColor, this));
     g_sdlDevice->drawTextureEx(
             texPtr,
 

@@ -368,10 +368,14 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
     , m_mapGLocFull
       {
           DIR_UPLEFT,
-          0, // need reset
+          0,
           0,
 
-          getMapGLocStr().c_str(),
+          [this](const Widget *)
+          {
+              return getMapGLocStr();
+          },
+
           1,
           12,
           0,
@@ -383,14 +387,14 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
       {
           DIR_NONE,
           68,
-          113,
+          117,
 
           &m_mapGLocFull,
 
           0,
           0,
-          m_mapGLocFull.w(),
-          m_mapGLocFull.h(),
+          [this](const Widget *){ return m_mapGLocFull.w(); },
+          [this](const Widget *){ return m_mapGLocFull.h(); },
 
           {},
 
@@ -399,12 +403,7 @@ CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
       }
 {}
 
-void CBLeft::updateMapGLoc()
-{
-    m_mapGLocFull.setText(u8"%s", getMapGLocStr().c_str());
-}
-
-std::u8string CBLeft::getMapGLocStr() const
+std::string CBLeft::getMapGLocStr() const
 {
     if(uidf::isMap(m_processRun->mapUID())){
         if(const auto &mr = DBCOM_MAPRECORD(m_processRun->mapID())){
@@ -412,10 +411,10 @@ std::u8string CBLeft::getMapGLocStr() const
             const auto mapNameBase = mapNameFull.substr(0, mapNameFull.find('_'));
 
             if(auto myHero = m_processRun->getMyHero()){
-                return str_printf(u8"%s: %d %d", mapNameBase.c_str(), myHero->x(), myHero->y());
+                return str_printf("%s: %d %d", mapNameBase.c_str(), myHero->x(), myHero->y());
             }
             else{
-                return str_printf(u8"%s", mapNameBase.c_str());
+                return str_printf("%s", mapNameBase.c_str());
             }
         }
     }

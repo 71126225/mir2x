@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <functional>
 #include "widget.hpp"
+#include "textboard.hpp"
 #include "labelboard.hpp"
 #include "imageboard.hpp"
 #include "tritexbutton.hpp"
@@ -37,7 +38,7 @@ class CBLeft: public Widget
         TritexButton m_buttonMinize;
 
     private:
-        LabelBoard   m_mapGLocFull;
+        TextBoard    m_mapGLocFull;
         GfxCropBoard m_mapGLoc;
 
     public:
@@ -45,7 +46,6 @@ class CBLeft: public Widget
                 Widget * = nullptr,
                 bool     = false);
 
-    public:
-        void updateMapGLoc();
-        std::u8string getMapGLocStr() const;
+    private:
+        std::string getMapGLocStr() const;
 };

@@ -515,8 +515,8 @@ class Widget: public WidgetTreeNode
         std::function<bool(Widget *, const SDL_Event &, bool)> m_processEventHandler;
 
     public:
-        Widget(Widget::VarDir argDir,
-
+        Widget(
+                Widget::VarDir argDir,
                 Widget::VarOff argX,
                 Widget::VarOff argY,
 
