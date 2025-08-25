@@ -3,7 +3,6 @@
 #include <functional>
 #include "widget.hpp"
 #include "textboard.hpp"
-#include "labelboard.hpp"
 #include "imageboard.hpp"
 #include "tritexbutton.hpp"
 #include "gfxcropboard.hpp"

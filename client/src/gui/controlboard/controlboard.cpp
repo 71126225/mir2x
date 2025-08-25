@@ -73,6 +73,17 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           false,
       }
 
+    , m_cbright
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          proc,
+          // this,
+          // false,
+      }
+
     , m_middle
       {
           DIR_UPLEFT,
@@ -995,6 +1006,7 @@ void ControlBoard::drawMiddleExpand() const
 void ControlBoard::drawEx(int, int, int, int, int, int) const
 {
     m_left.draw();
+    m_cbright.draw();
 
     if(m_expand){
         drawMiddleExpand();
@@ -1011,6 +1023,7 @@ bool ControlBoard::processEventDefault(const SDL_Event &event, bool valid)
     bool takeEvent = false;
 
     takeEvent |= m_left               .processEvent(event, valid && !takeEvent);
+    takeEvent |= m_cbright            .processEvent(event, valid && !takeEvent);
     takeEvent |= m_levelBox           .processEvent(event, valid && !takeEvent);
     takeEvent |= m_slider             .processEvent(event, valid && !takeEvent);
     takeEvent |= m_cmdLine            .processEvent(event, valid && !takeEvent);
