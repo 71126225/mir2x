@@ -353,7 +353,6 @@ void ControlBoard::update(double fUpdateTime)
     m_logBoard.update(fUpdateTime);
     m_arcAniBoard.update(fUpdateTime);
 
-    m_left.update(fUpdateTime);
     m_right.update(fUpdateTime);
 }
 

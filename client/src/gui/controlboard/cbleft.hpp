@@ -8,8 +8,12 @@
 #include "gfxcropboard.hpp"
 
 class ProcessRun;
+class ControlBoard;
 class CBLeft: public Widget
 {
+    private:
+        friend class ControlBoard;
+
     private:
         ProcessRun *m_processRun;
 
@@ -40,6 +44,13 @@ class CBLeft: public Widget
         TextBoard    m_mapGLocFull;
         GfxCropBoard m_mapGLoc;
 
+    private:
+        const int m_mapGLocMaxWidth   = 120;
+        const int m_mapGLocPixelSpeed =  20;
+
+    private:
+        double m_mapGLocAccuTime = 0.0;
+
     public:
         CBLeft(
                 Widget::VarDir,
@@ -52,4 +63,11 @@ class CBLeft: public Widget
 
     private:
         std::string getMapGLocStr() const;
+
+    protected:
+        void update(double fUpdateTime) override
+        {
+            m_mapGLocAccuTime += fUpdateTime;
+            Widget::update(fUpdateTime);
+        }
 };

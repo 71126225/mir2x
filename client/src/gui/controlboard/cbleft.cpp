@@ -364,15 +364,29 @@ CBLeft::CBLeft(
     , m_mapGLoc
       {
           DIR_NONE,
-          68,
+          73,
           117,
 
           &m_mapGLocFull,
 
+          [this](const Widget *)
+          {
+              if(m_mapGLocFull.w() < m_mapGLocMaxWidth){
+                  return 0;
+              }
+              return to_d(m_mapGLocPixelSpeed * m_mapGLocAccuTime / 1000.0) % (m_mapGLocFull.w() - m_mapGLocMaxWidth);
+          },
           0,
-          0,
-          [this](const Widget *){ return m_mapGLocFull.w(); },
-          [this](const Widget *){ return m_mapGLocFull.h(); },
+
+          [this](const Widget *)
+          {
+              return std::min<int>(m_mapGLocFull.w(), m_mapGLocMaxWidth);
+          },
+
+          [this](const Widget *)
+          {
+              return m_mapGLocFull.h();
+          },
 
           {},
 
