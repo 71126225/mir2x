@@ -39,19 +39,11 @@ class ControlBoard: public Widget
         const int m_stretchHMin = 196; // only can get bigger than original frame
 
     private:
-        CBLeft m_cbLeft;
+        CBLeft m_left;
 
     private:
-        Widget m_left;
         Widget m_middle;
         Widget m_right;
-
-    private:
-        TritexButton m_buttonQuickAccess;
-
-    private:
-        TritexButton m_buttonClose;
-        TritexButton m_buttonMinize;
 
     private:
         AlphaOnButton m_buttonExchange;

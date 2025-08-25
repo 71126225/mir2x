@@ -42,7 +42,12 @@ class CBLeft: public Widget
         GfxCropBoard m_mapGLoc;
 
     public:
-        CBLeft( ProcessRun *,
+        CBLeft(
+                Widget::VarDir,
+                Widget::VarOff,
+                Widget::VarOff,
+
+                ProcessRun *,
                 Widget * = nullptr,
                 bool     = false);
 

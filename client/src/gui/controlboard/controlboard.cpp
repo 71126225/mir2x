@@ -62,21 +62,13 @@ extern SDLDevice *g_sdlDevice;
 ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwidget, bool autoDelete)
     : Widget(DIR_UPLEFT, 0, startY, boardW, 133, {}, pwidget, autoDelete)
     , m_processRun(proc)
-    , m_cbLeft
-      {
-          proc,
-      }
-
     , m_left
       {
           DIR_UPLEFT,
           0,
           0,
-          178,
-          133,
 
-          {},
-
+          proc,
           this,
           false,
       }
@@ -101,101 +93,6 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           133,
           {},
           this,
-      }
-
-    , m_buttonQuickAccess
-      {
-          DIR_UPLEFT,
-          148,
-          2,
-          {SYS_U32NIL, 0X0B000000, 0X0B000001},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("QuickAccessBoard")){
-                  p->flipShow();
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_left,
-      }
-
-    , m_buttonClose
-      {
-          DIR_UPLEFT,
-          8,
-          72,
-          {SYS_U32NIL, 0X0000001E, 0X0000001F},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [](Widget *)
-          {
-              std::exit(0);
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_left,
-      }
-
-    , m_buttonMinize
-      {
-          DIR_UPLEFT,
-          109,
-          72,
-          {SYS_U32NIL, 0X00000020, 0X00000021},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          nullptr,
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_left,
       }
 
     , m_buttonExchange
@@ -850,6 +747,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           nullptr,
 
           &m_middle,
+          false,
       }
 {
     if(!proc){
@@ -896,55 +794,6 @@ void ControlBoard::update(double fUpdateTime)
     m_buttonHorse        .update(fUpdateTime);
     m_buttonRuntimeConfig.update(fUpdateTime);
     m_buttonFriendChat   .update(fUpdateTime);
-}
-
-void ControlBoard::drawLeft() const
-{
-    const int nY0 = y();
-
-    // draw left part
-    if(auto pTexture = g_progUseDB->retrieve(0X00000012)){
-        g_sdlDevice->drawTexture(pTexture, 0, nY0, 0, 0, 178, 133);
-    }
-
-    // draw HP and MP texture
-    {
-        auto pHP = g_progUseDB->retrieve(0X00000018);
-        auto pMP = g_progUseDB->retrieve(0X00000019);
-
-        if(pHP && pMP){
-
-            // we need to call query
-            // so need to validate two textures here
-
-            int nHPH = -1;
-            int nHPW = -1;
-            int nMPH = -1;
-            int nMPW = -1;
-
-            SDL_QueryTexture(pHP, nullptr, nullptr, &nHPW, &nHPH);
-            SDL_QueryTexture(pMP, nullptr, nullptr, &nMPW, &nMPH);
-
-            if(auto pMyHero = m_processRun->getMyHero()){
-                const double fLostHPRatio = 1.0 - pMyHero->getHealthRatio().at(0);
-                const double fLostMPRatio = 1.0 - pMyHero->getHealthRatio().at(1);
-
-                const auto nLostHPH = to_d(std::lround(nHPH * fLostHPRatio));
-                const auto nLostMPH = to_d(std::lround(nMPH * fLostMPRatio));
-
-                g_sdlDevice->drawTexture(pHP, 33, nY0 + 8 + nLostHPH, 0, nLostHPH, nHPW, nHPH - nLostHPH);
-                g_sdlDevice->drawTexture(pMP, 73, nY0 + 8 + nLostMPH, 0, nLostMPH, nMPW, nMPH - nLostMPH);
-            }
-        }
-    }
-
-    drawHeroLoc();
-    m_buttonClose.draw();
-    m_buttonMinize.draw();
-    m_buttonQuickAccess.draw();
-
-    drawRatioBar(152, nY0 + 115, m_processRun->getMyHero()->getLevelRatio());
-    drawRatioBar(165, nY0 + 115, m_processRun->getMyHero()->getInventoryRatio());
 }
 
 void ControlBoard::drawRight() const
@@ -1145,9 +994,7 @@ void ControlBoard::drawMiddleExpand() const
 
 void ControlBoard::drawEx(int, int, int, int, int, int) const
 {
-    m_cbLeft.draw();
-
-    drawLeft();
+    m_left.draw();
 
     if(m_expand){
         drawMiddleExpand();
@@ -1163,13 +1010,10 @@ bool ControlBoard::processEventDefault(const SDL_Event &event, bool valid)
 {
     bool takeEvent = false;
 
-    takeEvent |= m_cbLeft             .processEvent(event, valid && !takeEvent);
+    takeEvent |= m_left               .processEvent(event, valid && !takeEvent);
     takeEvent |= m_levelBox           .processEvent(event, valid && !takeEvent);
     takeEvent |= m_slider             .processEvent(event, valid && !takeEvent);
     takeEvent |= m_cmdLine            .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonClose        .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonMinize       .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonQuickAccess  .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonExchange     .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonMiniMap      .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonMagicKey     .processEvent(event, valid && !takeEvent);
@@ -1403,40 +1247,6 @@ void ControlBoard::drawInputGreyBackground() const
     else{
         g_sdlDevice->fillRectangle(color, m_middle.x() + 7, m_middle.y() + 104, m_middle.w() - 110, 17);
     }
-}
-
-void ControlBoard::drawHeroLoc() const
-{
-    // support different map uses same map name, i.e.
-    //
-    // 石墓迷宫_1
-    // 石墓迷宫_2
-    // 石墓迷宫_3
-    //
-    // we use same map gfx for different map
-    // but user still see same map name: 石墓迷宫
-
-    const auto mapName = std::string(to_cstr(DBCOM_MAPRECORD(m_processRun->mapID()).name));
-    const auto locStr = str_printf(u8"%s: %d %d", mapName.substr(0, mapName.find('_')).c_str(), m_processRun->getMyHero()->x(), m_processRun->getMyHero()->y());
-    LabelBoard locBoard
-    {
-        DIR_UPLEFT,
-        0, // need reset
-        0,
-
-        locStr.c_str(),
-        1,
-        12,
-        0,
-
-        colorf::WHITE + colorf::A_SHF(255),
-    };
-
-    const int locBoardStartX = (136 - locBoard.w()) / 2;
-    const int locBoardStartY = 109;
-
-    locBoard.moveBy(m_left.x() + locBoardStartX, m_left.y() + locBoardStartY);
-    locBoard.draw();
 }
 
 void ControlBoard::drawRatioBar(int x, int y, double r) const

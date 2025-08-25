@@ -13,12 +13,21 @@
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-CBLeft::CBLeft(ProcessRun *argProc, Widget *argParent, bool argAutoDelete)
+CBLeft::CBLeft(
+        Widget::VarDir argDir,
+        Widget::VarOff argX,
+        Widget::VarOff argY,
+
+        ProcessRun *argProc,
+        Widget *argParent,
+        bool argAutoDelete)
+
     : Widget
       {
-          DIR_UPLEFT,
-          0,
-          0,
+          std::move(argDir),
+          std::move(argX),
+          std::move(argY),
+
           178,
           133,
 
