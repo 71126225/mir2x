@@ -9,8 +9,12 @@
 #include "gfxcropboard.hpp"
 
 class ProcessRun;
+class ControlBoard;
 class CBRight: public Widget
 {
+    private:
+        friend class ControlBoard;
+
     private:
         ProcessRun *m_processRun;
 

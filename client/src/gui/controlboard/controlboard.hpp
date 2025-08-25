@@ -41,33 +41,10 @@ class ControlBoard: public Widget
 
     private:
         CBLeft  m_left;
-        CBRight m_cbright;
+        CBRight m_right;
 
     private:
         Widget m_middle;
-        Widget m_right;
-
-    private:
-        AlphaOnButton m_buttonExchange;
-        AlphaOnButton m_buttonMiniMap;
-        AlphaOnButton m_buttonMagicKey;
-
-    private:
-        TritexButton m_buttonInventory;
-        TritexButton m_buttonHeroState;
-        TritexButton m_buttonHeroMagic;
-
-    private:
-        TritexButton m_buttonGuild;
-        TritexButton m_buttonTeam;
-        TritexButton m_buttonQuest;
-        TritexButton m_buttonHorse;
-        TritexButton m_buttonRuntimeConfig;
-        TritexButton m_buttonFriendChat;
-
-    private:
-        ACButton m_buttonAC;
-        ACButton m_buttonDC;
 
     private:
         TritexButton m_buttonSwitchMode;

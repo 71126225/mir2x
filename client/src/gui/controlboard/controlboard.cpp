@@ -73,15 +73,15 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           false,
       }
 
-    , m_cbright
+    , m_right
       {
-          DIR_UPLEFT,
-          0,
+          DIR_UPRIGHT,
+          [](const Widget *){ return g_sdlDevice->getRendererWidth() - 1; },
           0,
 
           proc,
-          // this,
-          // false,
+          this,
+          false,
       }
 
     , m_middle
@@ -93,449 +93,6 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           131,
           {},
           this,
-      }
-
-    , m_right
-      {
-          DIR_UPLEFT,
-          boardW - 166,
-          0,
-          166,
-          133,
-          {},
-          this,
-      }
-
-    , m_buttonExchange
-      {
-          DIR_UPLEFT,
-          4,
-          6,
-
-          1,
-          1,
-          10,
-
-          80,
-          colorf::WHITE + colorf::A_SHF(255),
-          0X00000042,
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              addLog(0, "exchange doesn't implemented yet");
-          },
-
-          true,
-          &m_right,
-      }
-
-    , m_buttonMiniMap
-      {
-          DIR_UPLEFT,
-          4,
-          40,
-
-          1,
-          1,
-          10,
-
-          80,
-          colorf::WHITE + colorf::A_SHF(255),
-          0X00000043,
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = dynamic_cast<MiniMapBoard *>(m_processRun->getWidget("MiniMapBoard"))){
-                  if(p->getMiniMapTexture()){
-                      p->flipMiniMapShow();
-                  }
-                  else{
-                      addLog(CBLOG_ERR, to_cstr(u8"没有可用的地图"));
-                  }
-              }
-          },
-
-          true,
-          &m_right,
-      }
-
-    , m_buttonMagicKey
-      {
-          DIR_UPLEFT,
-          4,
-          75,
-
-          1,
-          1,
-          10,
-
-          80,
-          colorf::WHITE + colorf::A_SHF(255),
-          0X00000044,
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              m_processRun->flipDrawMagicKey();
-          },
-
-          true,
-          &m_right,
-      }
-
-    , m_buttonInventory
-      {
-          DIR_UPLEFT,
-          48,
-          33,
-          {0X00000030, 0X00000030, 0X00000031},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("InventoryBoard")){
-                  p->flipShow();
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonHeroState
-      {
-          DIR_UPLEFT,
-          77,
-          31,
-          {0X00000033, 0X00000033, 0X00000032},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("PlayerStateBoard")){
-                  p->flipShow();
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonHeroMagic
-      {
-          DIR_UPLEFT,
-          105,
-          33,
-          {0X00000035, 0X00000035, 0X00000034},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("SkillBoard")){
-                  p->flipShow();
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonGuild
-      {
-          DIR_UPLEFT,
-          40,
-          11,
-          {0X00000036, 0X00000036, 0X00000037},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("GuildBoard")){
-                  p->flipShow();
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonTeam
-      {
-          DIR_UPLEFT,
-          72,
-          8,
-          {0X00000038, 0X00000038, 0X00000039},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              auto boardPtr = dynamic_cast<TeamStateBoard *>(m_processRun->getWidget("TeamStateBoard"));
-              auto  heroPtr = m_processRun->getMyHero();
-
-              if(heroPtr->hasTeam()){
-                  boardPtr->flipShow();
-                  if(boardPtr->show()){
-                      boardPtr->refresh();
-                  }
-              }
-              else{
-                  m_processRun->setCursor(ProcessRun::CURSOR_TEAMFLAG);
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonQuest
-      {
-          DIR_UPLEFT,
-          108,
-          11,
-          {0X0000003A, 0X0000003A, 0X0000003B},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("QuestStateBoard")){
-                  p->flipShow();
-              }
-
-              m_buttonQuest.stopBlink();
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonHorse
-      {
-          DIR_UPLEFT,
-          40,
-          61,
-          {0X0000003C, 0X0000003C, 0X0000003D},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("HorseBoard")){
-                  p->flipShow();
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonRuntimeConfig
-      {
-          DIR_UPLEFT,
-          72,
-          72,
-          {0X0000003E, 0X0000003E, 0X0000003F},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("RuntimeConfigBoard")){
-                  p->flipShow();
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonFriendChat
-      {
-          DIR_UPLEFT,
-          108,
-          61,
-          {0X00000040, 0X00000040, 0X00000041},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          nullptr,
-          [this](Widget *)
-          {
-              if(auto p = m_processRun->getWidget("FriendChatBoard")){
-                  p->flipShow();
-              }
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          false,
-          true,
-
-          &m_right,
-      }
-
-    , m_buttonAC
-      {
-          DIR_UPLEFT,
-          1,
-          105,
-
-          proc,
-          {
-              "AC",
-              "MA",
-          },
-
-          &m_right,
-      }
-
-    , m_buttonDC
-      {
-          DIR_UPLEFT,
-          84,
-          105,
-
-          proc,
-          {
-              "DC",
-              "MC",
-          },
-
-          &m_right,
       }
 
     , m_buttonSwitchMode
@@ -796,44 +353,7 @@ void ControlBoard::update(double fUpdateTime)
     m_logBoard.update(fUpdateTime);
     m_arcAniBoard.update(fUpdateTime);
 
-    m_buttonInventory    .update(fUpdateTime);
-    m_buttonHeroState    .update(fUpdateTime);
-    m_buttonHeroMagic    .update(fUpdateTime);
-    m_buttonGuild        .update(fUpdateTime);
-    m_buttonTeam         .update(fUpdateTime);
-    m_buttonQuest        .update(fUpdateTime);
-    m_buttonHorse        .update(fUpdateTime);
-    m_buttonRuntimeConfig.update(fUpdateTime);
-    m_buttonFriendChat   .update(fUpdateTime);
-}
-
-void ControlBoard::drawRight() const
-{
-    const int nY0 = y();
-    const int nW0 = w();
-
-    // draw right part
-    if(auto pTexture = g_progUseDB->retrieve(0X00000012)){
-        g_sdlDevice->drawTexture(pTexture, nW0 - 166, nY0, 800 - 166, 0, 166, 133);
-    }
-
-    m_buttonExchange.draw();
-    m_buttonMiniMap.draw();
-    m_buttonMagicKey.draw();
-
-    m_buttonGuild.draw();
-    m_buttonTeam.draw();
-    m_buttonQuest.draw();
-    m_buttonHorse.draw();
-    m_buttonRuntimeConfig.draw();
-    m_buttonFriendChat.draw();
-
-    m_buttonAC.draw();
-    m_buttonDC.draw();
-
-    m_buttonInventory.draw();
-    m_buttonHeroState.draw();
-    m_buttonHeroMagic.draw();
+    m_right.update(fUpdateTime);
 }
 
 std::tuple<int, int> ControlBoard::scheduleStretch(int dstSize, int srcSize)
@@ -1006,7 +526,7 @@ void ControlBoard::drawMiddleExpand() const
 void ControlBoard::drawEx(int, int, int, int, int, int) const
 {
     m_left.draw();
-    m_cbright.draw();
+    m_right.draw();
 
     if(m_expand){
         drawMiddleExpand();
@@ -1014,8 +534,6 @@ void ControlBoard::drawEx(int, int, int, int, int, int) const
     else{
         drawMiddleDefault();
     }
-
-    drawRight();
 }
 
 bool ControlBoard::processEventDefault(const SDL_Event &event, bool valid)
@@ -1023,24 +541,10 @@ bool ControlBoard::processEventDefault(const SDL_Event &event, bool valid)
     bool takeEvent = false;
 
     takeEvent |= m_left               .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_cbright            .processEvent(event, valid && !takeEvent);
+    takeEvent |= m_right              .processEvent(event, valid && !takeEvent);
     takeEvent |= m_levelBox           .processEvent(event, valid && !takeEvent);
     takeEvent |= m_slider             .processEvent(event, valid && !takeEvent);
     takeEvent |= m_cmdLine            .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonExchange     .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonMiniMap      .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonMagicKey     .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonGuild        .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonTeam         .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonQuest        .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonHorse        .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonRuntimeConfig.processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonFriendChat   .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonAC           .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonDC           .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonInventory    .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonHeroState    .processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonHeroMagic    .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonSwitchMode   .processEvent(event, valid && !takeEvent);
 
     if(m_expand){
@@ -1231,7 +735,6 @@ int ControlBoard::logBoardStartY() const
 void ControlBoard::onWindowResize(int winW, int winH)
 {
     const auto prevWidth = w();
-    m_right.moveBy(winW - w(), 0);
     setW(winW);
 
     m_logBoard.setLineWidth(m_logBoard.getLineWidth() + (winW - prevWidth));
@@ -1414,14 +917,14 @@ void ControlBoard::drawFocusFace() const
 
 TritexButton *ControlBoard::getButton(const std::string_view &buttonName)
 {
-    if     (buttonName == "Inventory"    ){ return &m_buttonInventory    ; }
-    else if(buttonName == "HeroState"    ){ return &m_buttonHeroState    ; }
-    else if(buttonName == "HeroMagic"    ){ return &m_buttonHeroMagic    ; }
-    else if(buttonName == "Guild"        ){ return &m_buttonGuild        ; }
-    else if(buttonName == "Team"         ){ return &m_buttonTeam         ; }
-    else if(buttonName == "Quest"        ){ return &m_buttonQuest        ; }
-    else if(buttonName == "Horse"        ){ return &m_buttonHorse        ; }
-    else if(buttonName == "RuntimeConfig"){ return &m_buttonRuntimeConfig; }
-    else if(buttonName == "FriendChat"   ){ return &m_buttonFriendChat   ; }
-    else                                  { return nullptr               ; }
+    if     (buttonName == "Inventory"    ){ return &m_right.m_buttonInventory    ; }
+    else if(buttonName == "HeroState"    ){ return &m_right.m_buttonHeroState    ; }
+    else if(buttonName == "HeroMagic"    ){ return &m_right.m_buttonHeroMagic    ; }
+    else if(buttonName == "Guild"        ){ return &m_right.m_buttonGuild        ; }
+    else if(buttonName == "Team"         ){ return &m_right.m_buttonTeam         ; }
+    else if(buttonName == "Quest"        ){ return &m_right.m_buttonQuest        ; }
+    else if(buttonName == "Horse"        ){ return &m_right.m_buttonHorse        ; }
+    else if(buttonName == "RuntimeConfig"){ return &m_right.m_buttonRuntimeConfig; }
+    else if(buttonName == "FriendChat"   ){ return &m_right.m_buttonFriendChat   ; }
+    else                                  { return nullptr                       ; }
 }
