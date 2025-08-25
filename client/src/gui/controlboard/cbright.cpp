@@ -92,7 +92,9 @@ CBRight::CBRight(
           nullptr,
           [this](Widget *)
           {
-              // addLog(0, "exchange doesn't implemented yet");
+              if(auto cb = hasParent<ControlBoard>()){
+                  cb->addLog(0, "exchange doesn't implemented yet");
+              }
           },
 
           true,
@@ -123,7 +125,9 @@ CBRight::CBRight(
                       p->flipMiniMapShow();
                   }
                   else{
-                      // addLog(CBLOG_ERR, to_cstr(u8"没有可用的地图"));
+                      if(auto cb = hasParent<ControlBoard>()){
+                          cb->addLog(CBLOG_ERR, to_cstr(u8"没有可用的地图"));
+                      }
                   }
               }
           },
